@@ -6,6 +6,7 @@ import urllib.parse
 import ui.startup
 import ui.ole_login
 import ui.scanner_setup
+import ui.image_display
 import time
 import os
 import urllib.request
@@ -26,10 +27,13 @@ def download_image(user_id):
     if not os.path.exists(image_path):
         img_url = f"https://ole.saintkentigern.com/portrait.php?id={user_id}&size=constrain200"
         urllib.request.urlretrieve(img_url, image_path)
+        # print(img_url)
         print(f"Image downloaded and saved as {image_path}")
     else:
         print("Image already exists")
 
+    ui.image_display.user_id = user_id
+    ui.image_display.Window(root)
     return
 
 def startup():
