@@ -9,7 +9,7 @@ import ui.scanner_setup
 import ui.image_display
 import time
 import os
-import urllib.request
+import requests
 from utils.dispatch_group import DispatchGroup
 
 
@@ -21,19 +21,24 @@ def download_image(user_id):
     if not os.path.exists('images'):
         os.makedirs('images')
 
+    # Get the cookie
+    cookie = input("Enter PHPSESSID:")
+
     image_filename = f'user_{user_id}.jpg'
     image_path = os.path.join('images', image_filename)
 
     if not os.path.exists(image_path):
         img_url = f"https://ole.saintkentigern.com/portrait.php?id={user_id}&size=constrain200"
-        urllib.request.urlretrieve(img_url, image_path)
+        img_data = requests.get(img_url, cookies={'PHPSESSID': cookie}).content
+        with open(image_path, 'wb') as handler:
+            handler.write(img_data)
         # print(img_url)
         print(f"Image downloaded and saved as {image_path}")
     else:
         print("Image already exists")
 
-    ui.image_display.user_id = user_id
-    ui.image_display.Window(root)
+    #ui.image_display.user_id = user_id
+    #ui.image_display.Window(root)
     return
 
 def startup():
