@@ -36,9 +36,10 @@ def download_image(user_id):
         print(f"Image downloaded and saved as {image_path}")
     else:
         print("Image already exists")
+    
+    ui.image_display.user_id = user_id
+    ui.image_display.Window(root)
 
-    #ui.image_display.user_id = user_id
-    #ui.image_display.Window(root)
     return
 
 def startup():

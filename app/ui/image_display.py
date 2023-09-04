@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from PIL import ImageTk, Image
 
 user_id = ""
 class Window(Toplevel):
@@ -20,23 +21,8 @@ class Window(Toplevel):
         )
         title.pack()
 
-        image = PhotoImage(file=f"images/user_{user_id}.jpg")
+        image = Image.open(f"images/user_{user_id}.jpg")
+        image = ImageTk.PhotoImage(image)
         imageLabel = Label(frame, image=image)
         imageLabel.image = image
         imageLabel.pack(pady=20)
-
-        yesButton = Button(frame, text="Yes", command=lambda: yes())
-        yesButton.pack(side=LEFT, padx=30)
-
-        noButton = Button(frame, text="No", command=lambda: no())
-        noButton.pack(side=RIGHT, padx=30)
-
-        def no():
-            print("No")
-            self.destroy()
-            return
-        
-        def yes():
-            print("Yes")
-            self.destroy()
-            return
