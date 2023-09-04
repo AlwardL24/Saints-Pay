@@ -10,4 +10,4 @@ Developed with Python 3.9.1 - anything above 3.9 will likely work.
 
 Run `pip install -r requirements.txt` to install all required packages.
 
-Also Run `python3 -m pip install pillow` to install another package (Lucas you can add this to requirements.txt)
+Also Run `python -m pip install pillow` to install another package (Lucas you can add this to requirements.txt)
