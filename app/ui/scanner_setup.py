@@ -11,7 +11,7 @@ class Window(Toplevel):
         self.title("Setup Barcode Scanner")
         self.callback = callback
 
-        self.geometry("350x250")
+        self.geometry("450x350")
         self.resizable(False, False)
 
         def focus():
