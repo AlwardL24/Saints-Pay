@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
-import user_data_directory as udd
+import utils.user_data_directory as udd
 import keyring
 import urllib.parse
 import ui.startup
@@ -8,10 +8,14 @@ import ui.ole_login
 import ui.scanner_setup
 import time
 from utils.dispatch_group import DispatchGroup
+from backend.ole import OLE
 
 
 root = Tk()
 root.withdraw()
+
+
+ole = None
 
 
 def startup():
@@ -71,11 +75,16 @@ def startup():
     def callback():
         print("Got OLE Credentials: ", oleUsername, olePassword)
 
+        # try:
+        #     ole = OLE(oleUsername, olePassword)
+        # except OLE.Error as e:
+        #     messagebox.showerror("Error", str(e), parent=root)
+        #     prompt_login()
+        #     return
+
         def callback():
             # TODO later: Fetch from firebase
-
-            # Sign into the OLE
-
+            return
 
         ui.scanner_setup.Window(root, lambda: callback)
 
