@@ -90,7 +90,7 @@ class Window(Toplevel):
                 resultFrame.columnconfigure(1, weight=1)
 
                 image = Image.open(f"app/assets/placeholder_user_image.png")
-                image.thumbnail((70, 70), Image.ANTIALIAS)
+                image.thumbnail((70, 70), Image.LANCZOS)
 
                 image = ImageTk.PhotoImage(image)
                 imageLabel = Label(resultFrame, image=image, height=70, width=70)
@@ -141,7 +141,7 @@ class Window(Toplevel):
 
                     if os.path.exists(image_path):
                         image = Image.open(image_path)
-                        image.thumbnail((70, 70), Image.ANTIALIAS)
+                        image.thumbnail((70, 70), Image.LANCZOS)
 
                         image = ImageTk.PhotoImage(image)
                         imageLabel.configure(image=image)
@@ -163,7 +163,7 @@ class Window(Toplevel):
                             handler.write(image_data)
 
                         image = Image.open(image_path)
-                        image.thumbnail((70, 70), Image.ANTIALIAS)
+                        image.thumbnail((70, 70), Image.LANCZOS)
 
                         image = ImageTk.PhotoImage(image)
                         imageLabel.configure(image=image)
