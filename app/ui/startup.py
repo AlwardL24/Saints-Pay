@@ -1,4 +1,5 @@
 from tkinter import *
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -15,14 +16,14 @@ class Window(Toplevel):
         title = Label(
             frame,
             text="Saints Pay",
-            font=("Helvetica Bold", 24),
+            font=(utils.system_sans_font.bold, 24),
         )
         title.pack()
 
         self.subtitle = Label(
             frame,
             text="Loading...",
-            font=("Helvetica", 12),
+            font=(utils.system_sans_font.normal, 12),
         )
         self.subtitle.pack()
 

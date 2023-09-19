@@ -6,10 +6,11 @@ import backend.ole
 from PIL import ImageTk, Image
 import utils.user_data_directory as udd
 import os
+import utils.system_sans_font
 
 
 class Window(Toplevel):
-    def __init__(self, master, student: backend.OLE.Student, ole: backend.ole.OLE):
+    def __init__(self, master, student: backend.ole.OLE.Student, ole: backend.ole.OLE):
         Toplevel.__init__(self, master)
         self.title(f"New Transaction [{student.name}] - Saints Pay")
 
@@ -21,7 +22,15 @@ class Window(Toplevel):
         frame = Frame(self)
         frame.pack(padx=30, pady=20, expand=True, fill=BOTH)
 
-        frame.columnconfigure(0, minsize=0)
+        frame.rowconfigure(0, weight=1)
+        frame.rowconfigure(2, weight=1)
+        frame.rowconfigure(5, weight=1)
+        frame.rowconfigure(7, weight=1)
+        frame.rowconfigure(11, weight=1)
+        frame.rowconfigure(13, weight=2)
+        frame.rowconfigure(14, weight=2)
+
+        frame.columnconfigure(1, minsize=20)
 
         image = Image.open(f"app/assets/placeholder_user_image.png")
         image.thumbnail((210, 270), Image.LANCZOS)
@@ -29,179 +38,134 @@ class Window(Toplevel):
         image = ImageTk.PhotoImage(image)
         imageLabel = Label(frame, image=image, height=270, width=210)
         imageLabel.image = image  # Prevents Garbage Collection
-        imageLabel.grid(row=0, column=0, rowspan=3, sticky="NWSE")
+        imageLabel.grid(row=0, column=0, rowspan=13, sticky="NWSE")
 
-        cost_entry = EntryWithPlaceholder(
+        nameLabel = Label(
             frame,
-            placeholder="",
-            font=("Helvetica", 12),
-            justify=LEFT,
-            relief=SUNKEN,
-            exportselection=0,
-            keytyped_callback=self.search_entry_keytyped_callback,
+            text=f"{student.name}",
+            font=(utils.system_sans_font.bold, 28),
         )
-        cost_entry.grid(row=0, column=0, sticky="NWSE")
+        nameLabel.grid(row=1, column=1, sticky="NWS")
 
-        cost_entry.focus()
-
-        cost_entry.bind(
-            "<Return>", lambda _: self.search_or_scan_for(search_entry.get(), False)
-        )
-
-        search_button = Button(
+        infoLabel = Label(
             frame,
-            text="Search",
-            font=("Helvetica", 12),
+            text=f"Year {student.year if student.year is not None else 'Unknown'} • {student.tutor if student.tutor is not None else 'Unknown'} • {student.id}",
+            font=(utils.system_sans_font.normal, 14),
+        )
+        infoLabel.grid(row=3, column=1, sticky="NWS")
+
+        emailLabel = Label(
+            frame,
+            text=f"{student.email}",
+            font=(utils.system_sans_font.normal, 14),
+        )
+        emailLabel.grid(row=4, column=1, sticky="NWS")
+
+        notesLabel = Label(
+            frame,
+            text=f"Notes: PLACEHOLDER",
+            font=(utils.system_sans_font.normal, 14),
+        )
+        notesLabel.grid(row=6, column=1, sticky="NWS")
+
+        totalAmountSpentHeadingLabel = Label(
+            frame,
+            text=f"Total Amount Spent",
+            font=(utils.system_sans_font.bold, 14),
+        )
+        totalAmountSpentHeadingLabel.grid(row=8, column=1, sticky="NWS")
+
+        totalAmountSpentTodayLabel = Label(
+            frame,
+            text=f"Today: PLACEHOLDER",
+            font=(utils.system_sans_font.normal, 14),
+        )
+        totalAmountSpentTodayLabel.grid(row=9, column=1, sticky="NWS")
+
+        totalAmountSpentThisWeekLabel = Label(
+            frame,
+            text=f"This Week: PLACEHOLDER",
+            font=(utils.system_sans_font.normal, 14),
+        )
+        totalAmountSpentThisWeekLabel.grid(row=10, column=1, sticky="NWS")
+
+        actionButtonsFrame = Frame(frame)
+        actionButtonsFrame.grid(row=12, column=1, sticky="NWS")
+
+        blacklistButton = Button(
+            actionButtonsFrame,
+            text="Add to Blacklist",
+            font=(utils.system_sans_font.normal, 14),
             padx=10,
             pady=5,
             relief=RAISED,
-            command=lambda: self.search_or_scan_for(search_entry.get(), False),
+            command=lambda: print("MAYBE DO SOMETHING"),
         )
-        search_button.grid(row=0, column=1, sticky="NWSE")
+        blacklistButton.grid(row=0, column=0, sticky="NWSE", padx=5)
 
-        self.results_label = Label(
-            frame,
-            text="No results",
-            font=("Helvetica", 12),
-            pady=10,
+        editNotesButton = Button(
+            actionButtonsFrame,
+            text="Edit Notes",
+            font=(utils.system_sans_font.normal, 14),
+            padx=10,
+            pady=5,
+            relief=RAISED,
+            command=lambda: print("MAYBE DO SOMETHING"),
+        )
+        editNotesButton.grid(row=0, column=1, sticky="NWSE", padx=5)
+
+        viewPastTransactionsButton = Button(
+            actionButtonsFrame,
+            text="View Past Transactions",
+            font=(utils.system_sans_font.normal, 14),
+            padx=10,
+            pady=5,
+            relief=RAISED,
+            command=lambda: print("MAYBE DO SOMETHING"),
+        )
+        viewPastTransactionsButton.grid(row=0, column=2, sticky="NWSE", padx=5)
+
+        cost_bar_frame = Frame(frame)
+        cost_bar_frame.grid(row=15, column=0, columnspan=3, sticky="NWSE")
+
+        cost_bar_frame.columnconfigure(0, weight=1)
+
+        cost_entry = EntryWithPlaceholder(
+            cost_bar_frame,
+            placeholder="Transaction Amount (e.g. 5.00)",
+            font=(utils.system_sans_font.normal, 14),
             justify=LEFT,
+            relief=SUNKEN,
+            exportselection=0,
+            # keytyped_callback=self.search_entry_keytyped_callback,
         )
-        self.results_label.grid(row=1, column=0, sticky="NWS", columnspan=2)
+        cost_entry.grid(row=0, column=0, sticky="NWSE", padx=(0, 5))
 
-        self.results_box = SmoothScrolledText(
-            frame,
-            state="disabled",
+        cost_entry.focus()
+
+        # cost_entry.bind(
+        #     "<Return>", lambda _: self.search_or_scan_for(search_entry.get(), False)
+        # )
+
+        cancel_button = Button(
+            cost_bar_frame,
+            text="Cancel",
+            font=(utils.system_sans_font.normal, 14),
+            padx=10,
+            pady=5,
+            relief=RAISED,
+            command=lambda: self.destroy(),
         )
-        self.results_box.grid(row=2, column=0, sticky="NWSE", columnspan=2)
+        cancel_button.grid(row=0, column=1, sticky="NWSE", padx=5)
 
-    def search_or_scan_for(self, value, is_scan):
-        self.results_label.configure(text=f'Searching for "{value}"...')
-
-        def make_request():
-            students = self.ole.search_students(value)
-
-            self.results_label.configure(
-                text=f'{len(students)} result{"s" if len(students) != 1 else ""} for "{value}"'
-            )
-
-            self.results_box.configure(state="normal")
-            self.results_box.delete("1.0", "end")
-
-            for student in students:
-                resultFrame = Frame(self.results_box)
-
-                resultFrame.columnconfigure(1, weight=1)
-
-                image = Image.open(f"app/assets/placeholder_user_image.png")
-                image.thumbnail((70, 70), Image.LANCZOS)
-
-                image = ImageTk.PhotoImage(image)
-                imageLabel = Label(resultFrame, image=image, height=70, width=70)
-                imageLabel.image = image  # Prevents Garbage Collection
-                imageLabel.grid(row=0, column=0, rowspan=3, sticky="NWSE")
-
-                nameLabel = Label(
-                    resultFrame,
-                    text=f"{student.name}",
-                    font=("Helvetica", 12),
-                )
-                nameLabel.grid(row=0, column=1, sticky="NWS")
-
-                infoLabel = Label(
-                    resultFrame,
-                    text=f"Loading...",
-                    font=("Helvetica", 12),
-                )
-                infoLabel.grid(row=1, column=1, sticky="NWS")
-
-                selectButton = Button(
-                    resultFrame,
-                    text="Select",
-                    font=("Helvetica", 12),
-                    padx=10,
-                    pady=5,
-                    relief=RAISED,
-                    command=lambda: print("MAYBE DO SOMETHING"),
-                )
-                selectButton.grid(row=2, column=1, sticky="SW")
-
-                self.results_box.window_create(END, window=resultFrame)
-                self.results_box.insert(END, "\n")
-
-                def get_extra_student_info(student, imageLabel, infoLabel):
-                    print(student.schoolbox_id)
-
-                    image_cache_directory = udd.get_user_data_dir(
-                        ["SaintsPay", "student-data-cache", "images"]
-                    )
-
-                    if not os.path.exists(image_cache_directory):
-                        os.makedirs(image_cache_directory)
-
-                    image_filename = f"{student.schoolbox_id}.png"
-
-                    image_path = os.path.join(image_cache_directory, image_filename)
-
-                    if os.path.exists(image_path):
-                        image = Image.open(image_path)
-                        image.thumbnail((70, 70), Image.LANCZOS)
-
-                        image = ImageTk.PhotoImage(image)
-                        imageLabel.configure(image=image)
-                        imageLabel.image = image  # Prevents Garbage Collection
-                        print(f"FOUND CACHED PHOTO FOR STUDENT {student.schoolbox_id}")
-
-                    print(f"LOADING EXTRA DETAILS FOR STUDENT {student.schoolbox_id}")
-
-                    student = self.ole.student(student)
-
-                    infoLabel.configure(
-                        text=f"Year {student.year if student.year is not None else 'Unknown'} • {student.tutor if student.tutor is not None else 'Unknown'} • {student.username}"
-                    )
-
-                    if not os.path.exists(image_path):
-                        print(f"DOWNLOADING PHOTO FOR STUDENT {student.schoolbox_id}")
-                        image_data = self.ole.get_student_image(student)
-                        with open(image_path, "wb") as handler:
-                            handler.write(image_data)
-
-                        image = Image.open(image_path)
-                        image.thumbnail((70, 70), Image.LANCZOS)
-
-                        image = ImageTk.PhotoImage(image)
-                        imageLabel.configure(image=image)
-                        imageLabel.image = image  # Prevents Garbage Collection
-
-                thread = Thread(
-                    target=get_extra_student_info, args=(student, imageLabel, infoLabel)
-                )
-                thread.start()
-
-            self.results_box.configure(state="disabled")
-
-        thread = Thread(target=make_request)
-        thread.start()
-
-    def search_entry_keytyped_callback(self, value):
-        if len(value) == 1 and self.search_entry_last_keytyped_time is None:
-            self.search_entry_last_keytyped_time = time.time()
-
-        if not self.search_entry_last_keytyped_time is None:
-            if not self.search_entry_keytyped_timer is None:
-                self.search_entry_keytyped_timer.cancel()
-
-            def callback():
-                self.search_entry_last_keytyped_time = None
-                self.search_entry_keytyped_timer = None
-
-                if len(value) <= 2:
-                    return
-
-                self.search_or_scan_for(value, True)
-
-            self.search_entry_keytyped_timer = Timer(
-                0.07,
-                lambda: callback(),
-            )
-
-            self.search_entry_keytyped_timer.start()
+        done_button = Button(
+            cost_bar_frame,
+            text="Done",
+            font=(utils.system_sans_font.normal, 14),
+            padx=10,
+            pady=5,
+            relief=RAISED,
+            highlightbackground="orange",
+            command=lambda: print("MAYBE DO SOMETHING"),
+        )
+        done_button.grid(row=0, column=2, sticky="NWSE", padx=(5, 0))

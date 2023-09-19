@@ -7,6 +7,8 @@ import backend.ole
 from PIL import ImageTk, Image
 import utils.user_data_directory as udd
 import os
+from . import new_transaction
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -31,7 +33,7 @@ class Window(Toplevel):
         search_entry = EntryWithPlaceholder(
             frame,
             placeholder="Search for a student or scan their ID card...",
-            font=("Helvetica", 12),
+            font=(utils.system_sans_font.normal, 12),
             justify=LEFT,
             relief=SUNKEN,
             exportselection=0,
@@ -48,7 +50,7 @@ class Window(Toplevel):
         search_button = Button(
             frame,
             text="Search",
-            font=("Helvetica", 12),
+            font=(utils.system_sans_font.normal, 12),
             padx=10,
             pady=5,
             relief=RAISED,
@@ -59,7 +61,7 @@ class Window(Toplevel):
         self.results_label = Label(
             frame,
             text="No results",
-            font=("Helvetica", 12),
+            font=(utils.system_sans_font.normal, 12),
             pady=10,
             justify=LEFT,
         )
@@ -70,6 +72,11 @@ class Window(Toplevel):
             state="disabled",
         )
         self.results_box.grid(row=2, column=0, sticky="NWSE", columnspan=2)
+
+    def select_command_constructor(self, student):
+        return lambda: new_transaction.Window(
+            master=self.master, student=student, ole=self.ole
+        )
 
     def search_or_scan_for(self, value, is_scan):
         self.results_label.configure(text=f'Searching for "{value}"...')
@@ -100,25 +107,25 @@ class Window(Toplevel):
                 nameLabel = Label(
                     resultFrame,
                     text=f"{student.name}",
-                    font=("Helvetica", 12),
+                    font=(utils.system_sans_font.bold, 12),
                 )
                 nameLabel.grid(row=0, column=1, sticky="NWS")
 
                 infoLabel = Label(
                     resultFrame,
                     text=f"Loading...",
-                    font=("Helvetica", 12),
+                    font=(utils.system_sans_font.normal, 12),
                 )
                 infoLabel.grid(row=1, column=1, sticky="NWS")
 
                 selectButton = Button(
                     resultFrame,
                     text="Select",
-                    font=("Helvetica", 12),
+                    font=(utils.system_sans_font.normal, 12),
                     padx=10,
                     pady=5,
                     relief=RAISED,
-                    command=lambda: print("MAYBE DO SOMETHING"),
+                    command=self.select_command_constructor(student),
                 )
                 selectButton.grid(row=2, column=1, sticky="SW")
 

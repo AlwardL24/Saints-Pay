@@ -1,5 +1,6 @@
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, ttk
+from ttkthemes import ThemedTk
 import keyring
 import urllib.parse
 import ui
@@ -9,9 +10,16 @@ import requests
 from utils.dispatch_group import DispatchGroup
 from backend.ole import OLE
 import utils.user_data_directory as udd
+import utils.system_sans_font
 
 
-root = Tk()
+# TODO:
+# - make the UI look a lot nicer, especially for windows
+# - make the BG color of the frames inside of text boxes transparent
+# - consistency: use either all camelCase or all snake_case
+
+
+root = ThemedTk(theme="arc", toplevel=True)
 root.withdraw()
 
 
@@ -28,6 +36,51 @@ def get_size_of_dir(dir: str) -> int:
 
 
 def startup():
+    # saints_pay_style_normal_12_tbutton = ttk.Style()
+    # saints_pay_style_normal_12_tbutton.configure(
+    #     "SaintsPayStyle.Normal.12.TButton",
+    #     font=(utils.system_sans_font, 12),
+    #     padx=10,
+    #     pady=5,
+    #     borderless=True,
+    # )
+
+    saints_pay_style_font = ttk.Style()
+    saints_pay_style_font.configure(
+        ".",
+        font=(utils.system_sans_font.normal, 12),
+    )
+
+    saints_pay_style_l_tlabel = ttk.Style()
+    saints_pay_style_l_tlabel.configure(
+        "SaintsPayStyle.L.TLabel",
+        font=(utils.system_sans_font.normal, 14),
+    )
+
+    saints_pay_style_bold_tlabel = ttk.Style()
+    saints_pay_style_bold_tlabel.configure(
+        "SaintsPayStyle.Bold.TLabel",
+        font=(utils.system_sans_font.bold, 12),
+    )
+
+    saints_pay_style_boldl_tlabel = ttk.Style()
+    saints_pay_style_boldl_tlabel.configure(
+        "SaintsPayStyle.BoldL.TLabel",
+        font=(utils.system_sans_font.bold, 14),
+    )
+
+    saints_pay_style_boldxl_tlabel = ttk.Style()
+    saints_pay_style_boldxl_tlabel.configure(
+        "SaintsPayStyle.BoldXL.TLabel",
+        font=(utils.system_sans_font.bold, 24),
+    )
+
+    saints_pay_style_boldxxl_tlabel = ttk.Style()
+    saints_pay_style_boldxxl_tlabel.configure(
+        "SaintsPayStyle.BoldXXL.TLabel",
+        font=(utils.system_sans_font.bold, 28),
+    )
+
     startup_window = ui.startup.Window(root)
 
     # if the size of the student image cache is greater than 5MB, delete the oldest images until it is less than 5MB

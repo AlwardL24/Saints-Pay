@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -27,14 +28,14 @@ class Window(Toplevel):
         title = Label(
             frame,
             text="Login to the OLE",
-            font=("Helvetica Bold", 20),
+            font=(utils.system_sans_font.bold, 20),
         )
         title.pack(pady=10)
 
         subtitle = Label(
             frame,
             text="Required to access student information.\n A staff account is required to show\n student photos and tutor groups.",
-            font=("Helvetica", 12),
+            font=(utils.system_sans_font.normal, 12),
         )
         subtitle.pack(fill=X)
 
