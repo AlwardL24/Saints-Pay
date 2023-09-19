@@ -1,6 +1,5 @@
 from tkinter import *
 from utils.tkinter.entry_with_placeholder import EntryWithPlaceholder
-from utils.tkinter.smooth_scrolled_text import SmoothScrolledText
 import time
 from threading import Timer, Thread
 import backend.ole
@@ -10,14 +9,11 @@ import os
 
 
 class Window(Toplevel):
-    search_entry_last_keytyped_time = None
-    search_entry_keytyped_timer = None
-
-    def __init__(self, master, ole: backend.ole.OLE):
+    def __init__(self, master, student: backend.OLE.Student, ole: backend.ole.OLE):
         Toplevel.__init__(self, master)
-        self.title("Payment Terminal - Saints Pay")
+        self.title(f"New Transaction [{student.name}] - Saints Pay")
 
-        self.geometry("724x770")
+        self.geometry("724x400")
         self.resizable(True, True)
 
         self.ole = ole
@@ -25,23 +21,30 @@ class Window(Toplevel):
         frame = Frame(self)
         frame.pack(padx=30, pady=20, expand=True, fill=BOTH)
 
-        frame.columnconfigure(0, weight=1)
-        frame.rowconfigure(2, weight=1)
+        frame.columnconfigure(0, minsize=0)
 
-        search_entry = EntryWithPlaceholder(
+        image = Image.open(f"app/assets/placeholder_user_image.png")
+        image.thumbnail((210, 270), Image.LANCZOS)
+
+        image = ImageTk.PhotoImage(image)
+        imageLabel = Label(frame, image=image, height=270, width=210)
+        imageLabel.image = image  # Prevents Garbage Collection
+        imageLabel.grid(row=0, column=0, rowspan=3, sticky="NWSE")
+
+        cost_entry = EntryWithPlaceholder(
             frame,
-            placeholder="Search for a student or scan their ID card...",
+            placeholder="",
             font=("Helvetica", 12),
             justify=LEFT,
             relief=SUNKEN,
             exportselection=0,
             keytyped_callback=self.search_entry_keytyped_callback,
         )
-        search_entry.grid(row=0, column=0, sticky="NWSE")
+        cost_entry.grid(row=0, column=0, sticky="NWSE")
 
-        search_entry.focus()
+        cost_entry.focus()
 
-        search_entry.bind(
+        cost_entry.bind(
             "<Return>", lambda _: self.search_or_scan_for(search_entry.get(), False)
         )
 
@@ -194,7 +197,7 @@ class Window(Toplevel):
                 if len(value) <= 2:
                     return
 
-                self.search_or_scan_for("".join(c for c in value if c.isdigit()), True)
+                self.search_or_scan_for(value, True)
 
             self.search_entry_keytyped_timer = Timer(
                 0.07,
