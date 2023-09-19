@@ -33,7 +33,7 @@ class Window(Toplevel):
 
         subtitle = Label(
             frame,
-            text="Required to access student information.\n A staff account is required to show photos and tutor groups.",
+            text="Required to access student information.\n A staff account is required to show\n student photos and tutor groups.",
             font=("Helvetica", 12),
         )
         subtitle.pack(fill=X)

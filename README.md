@@ -9,5 +9,3 @@ The main branch is protected - please contribute by opening a new branch for the
 Developed with Python 3.9.1 - anything above 3.9 will likely work.
 
 Run `pip install -r requirements.txt` to install all required packages.
-
-Also Run `python -m pip install pillow` to install another package (Lucas you can add this to requirements.txt)
