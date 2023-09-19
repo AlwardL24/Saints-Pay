@@ -5,6 +5,7 @@ class DispatchGroup:
     entranceCount = 0
     exitCount = 0
     callbacks = []
+    permanentCallbacks = []
 
     def __init__(self):
         pass
@@ -21,9 +22,18 @@ class DispatchGroup:
 
                 del self.callbacks[i]
 
+            for callback in self.permanentCallbacks:
+                Thread(target=callback).start()
+
     def notify(self, callback):
         if self.exitCount == self.entranceCount:
             Thread(target=callback).start()
             return
 
         self.callbacks.append(callback)
+
+    def notify_permanently(self, callback):
+        if self.exitCount == self.entranceCount:
+            Thread(target=callback).start()
+
+        self.permanentCallbacks.append(callback)
