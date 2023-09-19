@@ -19,9 +19,13 @@ class Window(Toplevel):
         )
         title.pack()
 
-        subtitle = Label(
+        self.subtitle = Label(
             frame,
             text="Loading...",
             font=("Helvetica", 12),
         )
-        subtitle.pack()
+        self.subtitle.pack()
+
+    def set_loading_text(self, text):
+        text = text if text else "Loading..."
+        self.subtitle.configure(text=text)
