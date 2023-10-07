@@ -34,8 +34,6 @@ from PIL import Image, ImageTk
 # - make closing the dashboard window close the app, and if other windows are open prompt with a message saying all windows will be closed
 
 # - windows compatibility:
-# - make the sort by box on export screen slightly wider
-# - make the startup window, export to excel window, and transaction confirmation window slightly taller
 # - tri-state not supported in windows anyways, change the tkinter checkbutton to a ttk checkbutton for select all
 
 

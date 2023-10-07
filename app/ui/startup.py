@@ -8,7 +8,7 @@ class Window(Toplevel):
         Toplevel.__init__(self, master)
         self.title("Starting Saints Pay...")
 
-        self.geometry("300x100")
+        self.geometry("300x120")
         self.resizable(False, False)
 
         frame = ttk.Frame(self)

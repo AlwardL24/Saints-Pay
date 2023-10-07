@@ -25,7 +25,7 @@ class Window(Toplevel):
         Toplevel.__init__(self, master)
         self.title(f"Export Transactions")
 
-        self.geometry("380x450")
+        self.geometry("380x470")
         # self.resizable(False, False)
 
         self.ole = ole
@@ -124,6 +124,7 @@ class Window(Toplevel):
             textvariable=sort_by_stringvar,
             values=sort_bys,
             state="readonly",
+            width=30,
         )
         sort_by_combobox.grid(row=0, column=1, sticky="W")
 

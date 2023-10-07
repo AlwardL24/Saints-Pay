@@ -19,7 +19,7 @@ class Window(Toplevel):
         Toplevel.__init__(self, master)
         self.title(f"Confirm Transaction")
 
-        self.geometry("400x160")
+        self.geometry("400x180")
         self.resizable(False, False)
 
         frame = ttk.Frame(self)
