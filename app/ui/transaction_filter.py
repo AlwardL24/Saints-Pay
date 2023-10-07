@@ -7,6 +7,7 @@ import backend.operator
 from utils.date_entry import Datepicker
 from . import student_search
 from typing import Callable, Union
+from utils.system_agnostic_datetime_format import sadf
 
 
 class Window(Toplevel):
@@ -78,12 +79,12 @@ class Window(Toplevel):
 
         from_start_of = Datepicker(
             frame,
-            dateformat="%-d/%m/%Y",
+            dateformat=sadf("%-d/%m/%Y"),
             state="disabled" if self.filter.from_start_of is None else "normal",
             datevar=None
             if self.filter.from_start_of is None
             else StringVar(
-                value=self.filter.from_start_of.strftime("%-d/%m/%Y"),
+                value=self.filter.from_start_of.strftime(sadf("%-d/%m/%Y")),
             ),
             onselect=from_start_of_date_selected,
         )
@@ -127,13 +128,13 @@ class Window(Toplevel):
 
         to_end_of = Datepicker(
             frame,
-            dateformat="%-d/%m/%Y",
+            dateformat=sadf("%-d/%m/%Y"),
             state="disabled" if self.filter.to_end_of is None else "normal",
             onselect=to_end_of_date_selected,
             datevar=None
             if self.filter.to_end_of is None
             else StringVar(
-                value=self.filter.to_end_of.strftime("%-d/%m/%Y"),
+                value=self.filter.to_end_of.strftime(sadf("%-d/%m/%Y")),
             ),
         )
         to_end_of.grid(row=2, column=2, sticky="W")

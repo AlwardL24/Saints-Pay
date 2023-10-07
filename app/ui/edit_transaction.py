@@ -5,6 +5,7 @@ import backend.operator
 from utils.date_entry import Datepicker
 from . import student_search
 from datetime import datetime
+from utils.system_agnostic_datetime_format import sadf
 
 
 class Window(Toplevel):
@@ -121,8 +122,8 @@ class Window(Toplevel):
 
         datepicker = Datepicker(
             frame,
-            dateformat="%-d/%m/%Y",
-            datevar=StringVar(value=date.strftime("%-d/%m/%Y")),
+            dateformat=sadf("%-d/%m/%Y"),
+            datevar=StringVar(value=date.strftime(sadf("%-d/%m/%Y"))),
             onselect=date_selected,
         )
         datepicker.grid(row=2, column=1, sticky="W", pady=(0, 10))
@@ -131,7 +132,7 @@ class Window(Toplevel):
             row=3, column=0, sticky="E", padx=(0, 10)
         )
 
-        time_stringvar = StringVar(value=time.strftime("%-I:%M:%S %p"))
+        time_stringvar = StringVar(value=time.strftime(sadf("%-I:%M:%S %p")))
 
         def time_changed(*_):
             nonlocal time
@@ -139,13 +140,13 @@ class Window(Toplevel):
             time_string = time_stringvar.get()
 
             try:
-                _time = datetime.strptime(time_string, "%I:%M:%S %p").time()
+                _time = datetime.strptime(time_string, sadf("%I:%M:%S %p")).time()
             except ValueError:
                 _time = time
 
             time = _time
 
-            time_stringvar.set(time.strftime("%-I:%M:%S %p"))
+            time_stringvar.set(time.strftime(sadf("%-I:%M:%S %p")))
 
             transaction.time = int(datetime.combine(date, time).timestamp())
 

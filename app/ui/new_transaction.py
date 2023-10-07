@@ -13,6 +13,7 @@ import utils.user_data_directory as udd
 import os
 from . import edit_notes, confirm_transaction, blacklist_reason, transactions_list
 from datetime import datetime, timedelta
+from utils.system_agnostic_datetime_format import sadf
 
 
 class Window(Toplevel):
@@ -174,7 +175,7 @@ class Window(Toplevel):
                 lambda: ui.alert.Window(
                     self,
                     "Blacklisted",
-                    f"Caution: {student.name} is blacklisted!\n\nBlacklisted by {blacklist_entry.operator} at {datetime.fromtimestamp(blacklist_entry.time).strftime('%a %-d %b %Y %-I:%M:%S %p')}\nReason:\n{blacklist_entry.reason}",
+                    f"Caution: {student.name} is blacklisted!\n\nBlacklisted by {blacklist_entry.operator} at {datetime.fromtimestamp(blacklist_entry.time).strftime(sadf('%a %-d %b %Y %-I:%M:%S %p'))}\nReason:\n{blacklist_entry.reason}",
                     "warning",
                 ),
             )

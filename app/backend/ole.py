@@ -1,6 +1,7 @@
 from typing import Union, Callable
 import requests
 import utils.user_data_directory as udd
+from utils.system_agnostic_datetime_format import sadf
 import os
 import urllib.parse
 import re
@@ -617,7 +618,7 @@ class OLE:
 
         notes.set_notes_for_student(
             student.schoolbox_id,
-            f"Manually created student\nCreated by {operator.operator} at {datetime.now().strftime('%a %-d %b %Y %-I:%M:%S %p')}",
+            f"Manually created student\nCreated by {operator.operator} at {datetime.now().strftime(sadf('%a %-d %b %Y %-I:%M:%S %p'))}",
         )
 
         return student

@@ -8,6 +8,7 @@ from sys import platform
 from . import transaction_filter, alert, export_transactions, edit_transaction
 import datetime
 from typing import Callable, Union
+from utils.system_agnostic_datetime_format import sadf
 
 
 class Window(Toplevel):
@@ -479,7 +480,7 @@ class Window(Toplevel):
             time_label = ttk.Label(
                 self.table_frame,
                 text=datetime.datetime.fromtimestamp(transaction.time).strftime(
-                    "%a %-d %b %Y %-I:%M:%S %p"
+                    sadf("%a %-d %b %Y %-I:%M:%S %p")
                 ),
                 style="SaintsPayStyle.L.TLabel",
                 # tag="transaction",

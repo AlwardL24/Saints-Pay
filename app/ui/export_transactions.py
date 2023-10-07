@@ -10,6 +10,7 @@ from . import transaction_filter, alert
 import datetime
 from typing import Callable, Union
 import xlsxwriter
+from utils.system_agnostic_datetime_format import sadf
 
 
 class Window(Toplevel):
@@ -289,7 +290,7 @@ class Window(Toplevel):
                 )
 
         filename = asksaveasfilename(
-            initialfile=f"Transactions-{datetime.datetime.now().strftime('%-I-%M-%p-%-d-%m-%y')}.xlsx",
+            initialfile=f"Transactions-{datetime.datetime.now().strftime(sadf('%-I-%M-%p-%-d-%m-%y'))}.xlsx",
             defaultextension=".xlsx",
             filetypes=[("Excel Spreadsheet", "*.xlsx")],
         )
