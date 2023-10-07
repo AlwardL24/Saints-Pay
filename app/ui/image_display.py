@@ -1,8 +1,12 @@
 from tkinter import *
 from tkinter import ttk
 from PIL import ImageTk, Image
+import utils.system_sans_font
+
 
 user_id = ""
+
+
 class Window(Toplevel):
     def __init__(self, master):
         Toplevel.__init__(self, master)
@@ -17,7 +21,7 @@ class Window(Toplevel):
         title = Label(
             frame,
             text="Is this the student?",
-            font=("Helvetica Bold", 24),
+            font=(utils.system_sans_font.bold, 24),
         )
         title.pack()
 

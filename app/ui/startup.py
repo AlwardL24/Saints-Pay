@@ -1,4 +1,6 @@
 from tkinter import *
+from tkinter import ttk
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -9,20 +11,20 @@ class Window(Toplevel):
         self.geometry("300x100")
         self.resizable(False, False)
 
-        frame = Frame(self)
+        frame = ttk.Frame(self)
         frame.pack(padx=20, pady=20)
 
-        title = Label(
+        title = ttk.Label(
             frame,
             text="Saints Pay",
-            font=("Helvetica Bold", 24),
+            style="SaintsPayStyle.BoldXXL.TLabel",
         )
         title.pack()
 
-        self.subtitle = Label(
+        self.subtitle = ttk.Label(
             frame,
             text="Loading...",
-            font=("Helvetica", 12),
+            style="SaintsPayStyle.L.TLabel",
         )
         self.subtitle.pack()
 

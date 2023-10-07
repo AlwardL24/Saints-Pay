@@ -1,207 +1,333 @@
 from tkinter import *
+from tkinter import ttk
+import ui.alert
 from utils.tkinter.entry_with_placeholder import EntryWithPlaceholder
 import time
 from threading import Timer, Thread
 import backend.ole
+import backend.notes
+import backend.blacklist
+import backend.transaction
 from PIL import ImageTk, Image
 import utils.user_data_directory as udd
 import os
+from . import edit_notes, confirm_transaction, blacklist_reason, transactions_list
+from datetime import datetime, timedelta
 
 
 class Window(Toplevel):
-    def __init__(self, master, student: backend.OLE.Student, ole: backend.ole.OLE):
+    def __init__(self, master, student: backend.ole.OLE.Student, ole: backend.ole.OLE):
         Toplevel.__init__(self, master)
-        self.title(f"New Transaction [{student.name}] - Saints Pay")
+        self.title(f"New Transaction [{student.name}]")
 
-        self.geometry("724x400")
+        self.geometry("775x370")
         self.resizable(True, True)
 
         self.ole = ole
 
-        frame = Frame(self)
+        frame = ttk.Frame(self)
         frame.pack(padx=30, pady=20, expand=True, fill=BOTH)
 
-        frame.columnconfigure(0, minsize=0)
+        # frame.rowconfigure(0, weight=1)
+        # frame.rowconfigure(2, weight=1)
+        # frame.rowconfigure(5, weight=1)
+        # frame.rowconfigure(7, weight=1)
+        # frame.rowconfigure(11, weight=1)
+        # frame.rowconfigure(13, weight=2)
+        # frame.rowconfigure(14, weight=2)
 
-        image = Image.open(f"app/assets/placeholder_user_image.png")
+        frame.rowconfigure(9, weight=1)
+
+        frame.columnconfigure(1, weight=1)
+
+        image = Image.open(
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "../assets/placeholder_user_image.png",
+            )
+        )
         image.thumbnail((210, 270), Image.LANCZOS)
 
         image = ImageTk.PhotoImage(image)
-        imageLabel = Label(frame, image=image, height=270, width=210)
+        imageLabel = Label(frame, image=image, height=270, width=210, bg=self["bg"])
         imageLabel.image = image  # Prevents Garbage Collection
-        imageLabel.grid(row=0, column=0, rowspan=3, sticky="NWSE")
+        imageLabel.grid(
+            row=0, column=0, rowspan=9, sticky="NWSE", padx=(0, 10), pady=(0, 20)
+        )
+
+        nameLabel = ttk.Label(
+            frame,
+            text=f"{student.name}",
+            style="SaintsPayStyle.BoldXXL.TLabel",
+        )
+        nameLabel.grid(row=0, column=1, sticky="NWS", pady=(0, 5))
+
+        infoLabel = ttk.Label(
+            frame,
+            text=f"Year {student.year if student.year is not None else 'Unknown'} • {student.tutor if student.tutor is not None else 'Unknown'} • {student.id}",
+            style="SaintsPayStyle.L.TLabel",
+        )
+        infoLabel.grid(row=1, column=1, sticky="NWS")
+
+        emailLabel = ttk.Label(
+            frame,
+            text=f"{student.email}",
+            style="SaintsPayStyle.L.TLabel",
+        )
+        emailLabel.grid(row=2, column=1, sticky="NWS", pady=(0, 5))
+
+        notesTitleLabel = ttk.Label(
+            frame,
+            text=f"Notes:",
+            style="SaintsPayStyle.BoldL.TLabel",
+        )
+        notesTitleLabel.grid(row=3, column=1, sticky="NWS")
+
+        notesLabel = ttk.Label(
+            frame,
+            text=backend.notes.get_notes_for_student(student.schoolbox_id),
+        )
+        notesLabel.grid(row=4, column=1, sticky="NWSE", pady=(0, 5))
+
+        notesLabel.bind(
+            "<Configure>",
+            lambda _: notesLabel.config(wraplength=notesLabel.winfo_width()),
+        )
+
+        totalAmountSpentHeadingLabel = ttk.Label(
+            frame,
+            text=f"Total Amount Spent",
+            style="SaintsPayStyle.BoldL.TLabel",
+        )
+        totalAmountSpentHeadingLabel.grid(row=5, column=1, sticky="NWS")
+
+        transactionsToday = backend.transaction.get_transactions_filtered(
+            backend.transaction.TransactionFilter(
+                student_schoolbox_id=student.schoolbox_id,
+                from_start_of=datetime.now().date(),
+            )
+        )
+
+        totalAmountSpentToday = sum(
+            [transaction.amount for transaction in transactionsToday]
+        )
+
+        totalAmountSpentTodayLabel = ttk.Label(
+            frame,
+            text=f"Today: ${totalAmountSpentToday:.2f}",
+            style="SaintsPayStyle.L.TLabel",
+        )
+        totalAmountSpentTodayLabel.grid(row=6, column=1, sticky="NWS")
+
+        print(
+            (datetime.today() - timedelta(days=datetime.today().weekday() % 7)).date()
+        )
+
+        transactionsThisWeek = backend.transaction.get_transactions_filtered(
+            backend.transaction.TransactionFilter(
+                student_schoolbox_id=student.schoolbox_id,
+                from_start_of=(
+                    datetime.today() - timedelta(days=datetime.today().weekday() % 7)
+                ).date(),
+            )
+        )
+
+        totalAmountSpentThisWeek = sum(
+            [transaction.amount for transaction in transactionsThisWeek]
+        )
+
+        totalAmountSpentThisWeekLabel = ttk.Label(
+            frame,
+            text=f"This Week: ${totalAmountSpentThisWeek:.2f}",
+            style="SaintsPayStyle.L.TLabel",
+        )
+        totalAmountSpentThisWeekLabel.grid(row=7, column=1, sticky="NWS", pady=(0, 10))
+
+        actionButtonsFrame = ttk.Frame(frame)
+        actionButtonsFrame.grid(row=8, column=1, sticky="NWS", pady=(0, 20))
+
+        def toggle_blacklist():
+            if backend.blacklist.is_student_blacklisted(student.schoolbox_id):
+                backend.blacklist.remove_student_from_blacklist(student.schoolbox_id)
+                blacklistButton.configure(text="Add to Blacklist")
+            else:
+                blacklist_reason.Window(self, student)
+                blacklistButton.configure(text="Remove from Blacklist")
+
+        blacklistButton = ttk.Button(
+            actionButtonsFrame,
+            text="Add to Blacklist",
+            style="SaintsPayStyle.L.TButton",
+            command=toggle_blacklist,
+        )
+        blacklistButton.grid(row=0, column=0, sticky="NWSE", padx=5)
+
+        if backend.blacklist.is_student_blacklisted(student.schoolbox_id):
+            blacklistButton.configure(text="Remove from Blacklist")
+
+            blacklist_entry = backend.blacklist.get_blacklist_entry_for_student(
+                student.schoolbox_id
+            )
+
+            self.after(
+                20,
+                lambda: ui.alert.Window(
+                    self,
+                    "Blacklisted",
+                    f"Caution: {student.name} is blacklisted!\n\nBlacklisted by {blacklist_entry.operator} at {datetime.fromtimestamp(blacklist_entry.time).strftime('%a %-d %b %Y %-I:%M:%S %p')}\nReason:\n{blacklist_entry.reason}",
+                    "warning",
+                ),
+            )
+
+        editNotesButton = ttk.Button(
+            actionButtonsFrame,
+            text="Edit Notes",
+            style="SaintsPayStyle.L.TButton",
+            command=lambda: edit_notes.Window(
+                self,
+                student,
+                lambda: notesLabel.configure(
+                    text=backend.notes.get_notes_for_student(student.schoolbox_id)
+                ),
+            ),
+        )
+        editNotesButton.grid(row=0, column=1, sticky="NWSE", padx=5)
+
+        viewPastTransactionsButton = ttk.Button(
+            actionButtonsFrame,
+            text="View Past Transactions",
+            style="SaintsPayStyle.L.TButton",
+            command=lambda: transactions_list.Window(
+                self,
+                ole,
+                backend.transaction.TransactionFilter(
+                    student_schoolbox_id=student.schoolbox_id,
+                ),
+            ),
+        )
+        viewPastTransactionsButton.grid(row=0, column=2, sticky="NWSE", padx=5)
+
+        cost_bar_frame = ttk.Frame(frame)
+        cost_bar_frame.grid(row=9, column=0, columnspan=3, sticky="WSE")
+
+        cost_bar_frame.columnconfigure(0, weight=1)
 
         cost_entry = EntryWithPlaceholder(
-            frame,
-            placeholder="",
-            font=("Helvetica", 12),
+            cost_bar_frame,
+            placeholder="Transaction Amount (e.g. 5.00)",
+            style="SaintsPayStyle.L.TEntry",
             justify=LEFT,
-            relief=SUNKEN,
             exportselection=0,
-            keytyped_callback=self.search_entry_keytyped_callback,
+            # keytyped_callback=self.search_entry_keytyped_callback,
         )
-        cost_entry.grid(row=0, column=0, sticky="NWSE")
+        cost_entry.grid(row=0, column=0, sticky="NWSE", padx=(0, 5))
 
         cost_entry.focus()
 
-        cost_entry.bind(
-            "<Return>", lambda _: self.search_or_scan_for(search_entry.get(), False)
+        cost_entry.bind("<Return>", lambda _: done_button_pressed())
+
+        cancel_button = ttk.Button(
+            cost_bar_frame,
+            text="Cancel",
+            style="SaintsPayStyle.L.TButton",
+            command=lambda: self.destroy(),
         )
+        cancel_button.grid(row=0, column=1, sticky="NWSE", padx=5)
 
-        search_button = Button(
-            frame,
-            text="Search",
-            font=("Helvetica", 12),
-            padx=10,
-            pady=5,
-            relief=RAISED,
-            command=lambda: self.search_or_scan_for(search_entry.get(), False),
-        )
-        search_button.grid(row=0, column=1, sticky="NWSE")
+        def done_button_pressed():
+            try:
+                text = cost_entry.get().strip()
+                if text.startswith("$"):
+                    text = text[1:]
 
-        self.results_label = Label(
-            frame,
-            text="No results",
-            font=("Helvetica", 12),
-            pady=10,
-            justify=LEFT,
-        )
-        self.results_label.grid(row=1, column=0, sticky="NWS", columnspan=2)
+                if text.endswith("."):
+                    text = text[:-1]
 
-        self.results_box = SmoothScrolledText(
-            frame,
-            state="disabled",
-        )
-        self.results_box.grid(row=2, column=0, sticky="NWSE", columnspan=2)
+                if text.startswith("."):
+                    text = f"0{text}"
 
-    def search_or_scan_for(self, value, is_scan):
-        self.results_label.configure(text=f'Searching for "{value}"...')
+                if len(text.split(".")) == 2:
+                    decimal = text.split(".")[1]
+                    if len(decimal) > 2:
+                        decimal_to_round = float(f"{decimal[:2]}.{decimal[2:]}")
+                        decimal = round(decimal_to_round)
+                        text = f"{text.split('.')[0]}.{str(decimal).zfill(2)}"
 
-        def make_request():
-            students = self.ole.search_students(value)
+                cost = float(text)
 
-            self.results_label.configure(
-                text=f'{len(students)} result{"s" if len(students) != 1 else ""} for "{value}"'
+                if cost <= 0:
+                    raise ValueError()
+            except ValueError:
+                ui.alert.Window(
+                    self,
+                    "Invalid Amount",
+                    'The transaction amount you entered is invalid. Please enter a valid amount, of the format "5.50".',
+                    "error",
+                )
+                return
+
+            confirm_transaction.Window(
+                self,
+                student,
+                cost,
+                lambda: self.destroy(),
             )
 
-            self.results_box.configure(state="normal")
-            self.results_box.delete("1.0", "end")
+        done_button = ttk.Button(
+            cost_bar_frame,
+            text="Done",
+            style="SaintsPayStyle.L.TButton",
+            command=done_button_pressed,
+        )
+        done_button.grid(row=0, column=2, sticky="NWSE", padx=(5, 0))
 
-            for student in students:
-                resultFrame = Frame(self.results_box)
+        def get_extra_student_info(student, imageLabel, infoLabel, emailLabel):
+            cached_image = self.ole.get_student_image_from_cache(student)
 
-                resultFrame.columnconfigure(1, weight=1)
-
-                image = Image.open(f"app/assets/placeholder_user_image.png")
-                image.thumbnail((70, 70), Image.LANCZOS)
+            if cached_image is not None:
+                image = cached_image
+                image.thumbnail((210, 270), Image.LANCZOS)
 
                 image = ImageTk.PhotoImage(image)
-                imageLabel = Label(resultFrame, image=image, height=70, width=70)
+                imageLabel.configure(image=image)
                 imageLabel.image = image  # Prevents Garbage Collection
-                imageLabel.grid(row=0, column=0, rowspan=3, sticky="NWSE")
+                print(f"FOUND CACHED PHOTO FOR STUDENT {student.schoolbox_id}")
 
-                nameLabel = Label(
-                    resultFrame,
-                    text=f"{student.name}",
-                    font=("Helvetica", 12),
+            if student.email is None:
+                print(f"LOADING EXTRA DETAILS FOR STUDENT {student.schoolbox_id}")
+
+                student = self.ole.student(student)
+
+                infoLabel.configure(
+                    text=f"Year {student.year if student.year is not None else 'Unknown'} • {student.tutor if student.tutor is not None else 'Unknown'} • {student.id}"
                 )
-                nameLabel.grid(row=0, column=1, sticky="NWS")
 
-                infoLabel = Label(
-                    resultFrame,
-                    text=f"Loading...",
-                    font=("Helvetica", 12),
+                emailLabel.configure(
+                    text=f"{student.email}",
                 )
-                infoLabel.grid(row=1, column=1, sticky="NWS")
 
-                selectButton = Button(
-                    resultFrame,
-                    text="Select",
-                    font=("Helvetica", 12),
-                    padx=10,
-                    pady=5,
-                    relief=RAISED,
-                    command=lambda: print("MAYBE DO SOMETHING"),
-                )
-                selectButton.grid(row=2, column=1, sticky="SW")
+            if cached_image is None:
+                print(f"DOWNLOADING PHOTO FOR STUDENT {student.schoolbox_id}")
 
-                self.results_box.window_create(END, window=resultFrame)
-                self.results_box.insert(END, "\n")
+                image = self.ole.get_student_image(student, try_cache=False)
+                image.thumbnail((210, 270), Image.LANCZOS)
 
-                def get_extra_student_info(student, imageLabel, infoLabel):
-                    print(student.schoolbox_id)
+                image = ImageTk.PhotoImage(image)
+                imageLabel.configure(image=image)
+                imageLabel.image = image  # Prevents Garbage Collection
 
-                    image_cache_directory = udd.get_user_data_dir(
-                        ["SaintsPay", "student-data-cache", "images"]
-                    )
-
-                    if not os.path.exists(image_cache_directory):
-                        os.makedirs(image_cache_directory)
-
-                    image_filename = f"{student.schoolbox_id}.png"
-
-                    image_path = os.path.join(image_cache_directory, image_filename)
-
-                    if os.path.exists(image_path):
-                        image = Image.open(image_path)
-                        image.thumbnail((70, 70), Image.LANCZOS)
-
-                        image = ImageTk.PhotoImage(image)
-                        imageLabel.configure(image=image)
-                        imageLabel.image = image  # Prevents Garbage Collection
-                        print(f"FOUND CACHED PHOTO FOR STUDENT {student.schoolbox_id}")
-
-                    print(f"LOADING EXTRA DETAILS FOR STUDENT {student.schoolbox_id}")
-
-                    student = self.ole.student(student)
-
-                    infoLabel.configure(
-                        text=f"Year {student.year if student.year is not None else 'Unknown'} • {student.tutor if student.tutor is not None else 'Unknown'} • {student.username}"
-                    )
-
-                    if not os.path.exists(image_path):
-                        print(f"DOWNLOADING PHOTO FOR STUDENT {student.schoolbox_id}")
-                        image_data = self.ole.get_student_image(student)
-                        with open(image_path, "wb") as handler:
-                            handler.write(image_data)
-
-                        image = Image.open(image_path)
-                        image.thumbnail((70, 70), Image.LANCZOS)
-
-                        image = ImageTk.PhotoImage(image)
-                        imageLabel.configure(image=image)
-                        imageLabel.image = image  # Prevents Garbage Collection
-
-                thread = Thread(
-                    target=get_extra_student_info, args=(student, imageLabel, infoLabel)
-                )
-                thread.start()
-
-            self.results_box.configure(state="disabled")
-
-        thread = Thread(target=make_request)
+        thread = Thread(
+            target=get_extra_student_info,
+            args=(student, imageLabel, infoLabel, emailLabel),
+        )
         thread.start()
 
-    def search_entry_keytyped_callback(self, value):
-        if len(value) == 1 and self.search_entry_last_keytyped_time is None:
-            self.search_entry_last_keytyped_time = time.time()
 
-        if not self.search_entry_last_keytyped_time is None:
-            if not self.search_entry_keytyped_timer is None:
-                self.search_entry_keytyped_timer.cancel()
+# from ttkthemes import ThemedTk
 
-            def callback():
-                self.search_entry_last_keytyped_time = None
-                self.search_entry_keytyped_timer = None
+# root = ThemedTk(theme="arc", toplevel=True)
+# root.withdraw()
 
-                if len(value) <= 2:
-                    return
+# window = Window(root, backend.ole.OLE.Student(id="123", name="John Smith"), None)
 
-                self.search_or_scan_for(value, True)
-
-            self.search_entry_keytyped_timer = Timer(
-                0.07,
-                lambda: callback(),
-            )
-
-            self.search_entry_keytyped_timer.start()
+# root.mainloop()

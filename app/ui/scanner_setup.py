@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -26,14 +27,14 @@ class Window(Toplevel):
         label = Label(
             frame,
             text="Setup a barcode scanner, magnetic stripe reader or\n other input device to scan student IDs.",
-            font=("Helvetica", 12),
+            font=(utils.system_sans_font.normal, 12),
         )
         label.pack(fill=X)
 
         label2 = Label(
             frame,
             text="Connect the device to your computer \nand scan a card to continue. \nClose this window once you're finished.",
-            font=("Helvetica", 12),
+            font=(utils.system_sans_font.normal, 12),
         )
         label2.pack(fill=X, pady=(10, 0))
 
@@ -43,7 +44,7 @@ class Window(Toplevel):
         state = Label(
             frame,
             text="Waiting for input...",
-            font=("Helvetica", 12),
+            font=(utils.system_sans_font.normal, 12),
         )
         state.pack(fill=X)
 

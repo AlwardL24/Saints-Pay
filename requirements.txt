@@ -1,5 +1,8 @@
 keyring==24.2.0
 requests==2.31.0
 pillow==10.0.0
-typing==3.10.0.0
+#typing==3.10.0.0 # not needed - in python 3.5 and above typing is included in the standard library
 typing_extensions==4.8.0
+ttkthemes==3.2.2
+tkScrolledFrame==1.0.4
+XlsxWriter==3.1.6
