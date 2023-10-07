@@ -17,3 +17,8 @@ elif platform == "linux":
 else:
     normal = "Arial"
     bold = "Arial Bold"
+
+size_multiplier = 1.0
+
+if platform == "win32":
+    size_multiplier = 0.8
