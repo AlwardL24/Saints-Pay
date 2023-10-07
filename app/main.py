@@ -29,6 +29,14 @@ from PIL import Image, ImageTk
 # TODO:
 # - consistency: use either all camelCase or all snake_case
 # - potentially add a button in payment terminal to "manually enter transaction" and create a window for creating local student
+# - add confirmation popup before clearing student cache
+# - make closing the startup window close the app
+# - make closing the dashboard window close the app, and if other windows are open prompt with a message saying all windows will be closed
+
+# - windows compatibility:
+# - make the sort by box on export screen slightly wider
+# - make the startup window, export to excel window, and transaction confirmation window slightly taller
+# - tri-state not supported in windows anyways, change the tkinter checkbutton to a ttk checkbutton for select all
 
 
 root = ThemedTk(theme="arc", toplevel=True, className="Saints Pay")
