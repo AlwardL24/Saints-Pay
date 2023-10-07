@@ -6,6 +6,7 @@ import datetime
 import urllib.parse
 from . import ole as backend_ole
 from typing import Union
+from utils.system_agnostic_datetime_format import sadf
 
 
 class Transaction:
@@ -72,10 +73,10 @@ class TransactionFilter:
             string += f" made by {self.operator}"
 
         if self.from_start_of is not None:
-            string += f" from {self.from_start_of.strftime('%d/%m/%Y')}"
+            string += f" from {self.from_start_of.strftime(sadf('%d/%m/%Y'))}"
 
         if self.to_end_of is not None:
-            string += f" to {self.to_end_of.strftime('%d/%m/%Y')}"
+            string += f" to {self.to_end_of.strftime(sadf('%d/%m/%Y'))}"
 
         if string == "transactions":
             string = "all transactions"
@@ -192,16 +193,14 @@ def delete_transactions_with_ids(ids: list[str]):
             except UnicodeDecodeError:
                 continue
 
-            try:
-                if (
-                    next(
-                        x.split("=")[1] for x in transaction_data if x.startswith("id=")
-                    )
-                    in ids
-                ):
-                    os.remove(transaction_file_path)
-            except (StopIteration, IndexError, TypeError, ValueError):
-                continue
+        try:
+            if (
+                next(x.split("=")[1] for x in transaction_data if x.startswith("id="))
+                in ids
+            ):
+                os.remove(transaction_file_path)
+        except (StopIteration, IndexError, TypeError, ValueError):
+            continue
 
 
 def edit_transaction(transaction: Transaction):

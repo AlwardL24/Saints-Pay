@@ -5,6 +5,7 @@ import backend.transaction
 import backend.operator
 from datetime import datetime
 import time
+from utils.system_agnostic_datetime_format import sadf
 
 
 class Window(Toplevel):
@@ -70,7 +71,7 @@ class Window(Toplevel):
 
         time_label = ttk.Label(
             frame,
-            text=datetime.now().strftime("%a %-d %b %Y %-I:%M:%S %p"),
+            text=datetime.now().strftime(sadf("%a %-d %b %Y %-I:%M:%S %p")),
             style="SaintsPayStyle.L.TLabel",
         )
         time_label.grid(row=2, column=1, sticky="NW")
