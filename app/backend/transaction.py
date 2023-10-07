@@ -193,16 +193,14 @@ def delete_transactions_with_ids(ids: list[str]):
             except UnicodeDecodeError:
                 continue
 
-            try:
-                if (
-                    next(
-                        x.split("=")[1] for x in transaction_data if x.startswith("id=")
-                    )
-                    in ids
-                ):
-                    os.remove(transaction_file_path)
-            except (StopIteration, IndexError, TypeError, ValueError):
-                continue
+        try:
+            if (
+                next(x.split("=")[1] for x in transaction_data if x.startswith("id="))
+                in ids
+            ):
+                os.remove(transaction_file_path)
+        except (StopIteration, IndexError, TypeError, ValueError):
+            continue
 
 
 def edit_transaction(transaction: Transaction):
