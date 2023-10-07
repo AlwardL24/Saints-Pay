@@ -1,3 +1,9 @@
 {
-    "cSpell.words": ["exportselection", "schoolbox"]
+    "cSpell.words": [
+        "characterify",
+        "excelify",
+        "exportselection",
+        "schoolbox"
+    ],
+    "python.analysis.typeCheckingMode": "off"
 }
