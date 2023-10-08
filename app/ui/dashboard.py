@@ -45,7 +45,7 @@ class Window(Toplevel):
 
         version = ttk.Label(
             frame,
-            text="Version 1.0.2",
+            text="Version 1.0.3",
             style="SaintsPayStyle.L.TLabel"
             # font=(utils.system_sans_font.normal, 12),
         )

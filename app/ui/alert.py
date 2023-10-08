@@ -92,7 +92,7 @@ class Window(Toplevel):
             wrap_message_label,
         )
 
-        self.bind("<Return>", lambda _: self.destroy())
+        self.bind("<Return>", lambda _: button_pressed(buttons[-1]))
 
         self.focus_set()
 
