@@ -1,19 +1,28 @@
 from tkinter import *
 from tkinter import ttk
-from . import transactions_list, payment_terminal, export_transactions
+from . import transactions_list, payment_terminal, export_transactions, alert
 import backend.ole
+from utils.tkinter.center import center
 
 
 class Window(Toplevel):
     open_payment_terminal_callback = None
 
-    def __init__(self, master, ole: backend.ole.OLE, log_out_callback: callable):
+    def __init__(
+        self,
+        master,
+        ole: backend.ole.OLE,
+        log_out_callback: callable,
+        quit_callback=None,
+    ):
         Toplevel.__init__(self, master)
 
         self.title("Saints Pay")
 
         self.geometry("724x433")
         self.resizable(True, True)
+
+        self.quit_callback = quit_callback
 
         frame = ttk.Frame(self)
         frame.pack(padx=30, pady=20, expand=True, fill=BOTH)
@@ -36,7 +45,7 @@ class Window(Toplevel):
 
         version = ttk.Label(
             frame,
-            text="Version 1.0.1",
+            text="Version 1.0.2",
             style="SaintsPayStyle.L.TLabel"
             # font=(utils.system_sans_font.normal, 12),
         )
@@ -120,3 +129,27 @@ class Window(Toplevel):
             command=lambda: ole.clear_student_cache(),
         )
         clear_student_cache_button.grid(row=10, column=0, sticky="NSWE")
+
+        self.protocol("WM_DELETE_WINDOW", self.on_destroy)
+
+        center(self)
+
+    def on_destroy(self):
+        if self.quit_callback is not None:
+            button = ""
+
+            def alert_callback(_button):
+                nonlocal button
+                button = _button
+
+            alert.Window(
+                self,
+                "Quit Saints Pay",
+                "Are you sure you want to quit Saints Pay? This will close all other windows",
+                style="warning",
+                buttons=["Cancel", "Quit"],
+                callback=alert_callback,
+            ).wait_window()
+
+            if button == "Quit":
+                self.quit_callback()

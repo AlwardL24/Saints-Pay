@@ -164,10 +164,12 @@ class Window(Toplevel):
         def select_all_checkbutton_clicked():
             if len(self.selected_transactions) == len(self.transactions):
                 self.selected_transactions = []
+                self.select_all_checkbutton_variable.set(0)
             else:
                 self.selected_transactions = [
                     transaction.id for transaction in self.transactions
                 ]
+                self.select_all_checkbutton_variable.set(1)
 
             self.selection_description_label.configure(
                 text=f"{len(self.selected_transactions)} transaction{'s' if len(self.selected_transactions) != 1 else ''} selected"
@@ -188,14 +190,12 @@ class Window(Toplevel):
 
             self.show_transactions()
 
-        Checkbutton(
+        ttk.Checkbutton(
             self.table_frame,
             command=select_all_checkbutton_clicked,
             variable=self.select_all_checkbutton_variable,
             onvalue=1,
             offvalue=0,
-            tristatevalue=2,
-            bg=self["bg"],
         ).grid(row=0, column=0, sticky="W", padx=(10, 0))
 
         student_header_frame = ttk.Frame(self.table_frame)
@@ -383,7 +383,7 @@ class Window(Toplevel):
         elif len(self.selected_transactions) == 0:
             self.select_all_checkbutton_variable.set(0)
         else:
-            self.select_all_checkbutton_variable.set(2)
+            self.select_all_checkbutton_variable.set(1)
 
     def selection_checkbutton_clicked_function_generator(self, transaction_id):
         return lambda: self.selection_checkbutton_clicked(transaction_id)

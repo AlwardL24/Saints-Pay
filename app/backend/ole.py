@@ -97,9 +97,32 @@ class OLE:
             }
         )
 
-        response = requests.request(
-            "POST", url, headers=headers, data=payload, allow_redirects=False
-        )
+        try:
+            response = requests.request(
+                "POST", url, headers=headers, data=payload, allow_redirects=False
+            )
+        except requests.exceptions.RequestException as e:
+            type_description = str(type(e))
+            if len(type_description.split("'")) == 3:
+                type_description = type_description.split("'")[1]
+
+            if type_description.startswith("requests.exceptions."):
+                type_description = type_description[20:]
+
+            type_description.replace("_", " ")
+
+            word_blocks = re.finditer(r"\w()[A-Z][a-z]", type_description)
+
+            for word_block in word_blocks:
+                index = word_block.start(1)
+
+                type_description = (
+                    f"{type_description[:index]} {type_description[index:]}"
+                )
+
+            raise OLE.Error(
+                f"There was an error connecting to the internet. {type_description}"
+            )
 
         if response.status_code >= 400 and response.status_code < 500:
             raise OLE.Error(f"{response.text}")

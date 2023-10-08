@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import ImageTk, Image
 from typing import Callable
 import os
+from utils.tkinter.center import center
 
 
 class Window(Toplevel):
@@ -15,6 +16,7 @@ class Window(Toplevel):
         buttons: list[str] = ["OK"],
         callback: Callable[[str], None] = None,
         inputs: list[StringVar] = [],
+        destroy_first: bool = True,
     ):
         Toplevel.__init__(self, parent)
 
@@ -48,9 +50,14 @@ class Window(Toplevel):
         buttons_frame.grid(row=1 + len(inputs), column=1, sticky="SE", pady=(10, 0))
 
         def button_pressed(button):
-            self.destroy()
-            if callback:
-                callback(button)
+            if destroy_first:
+                self.destroy()
+                if callback:
+                    callback(button)
+            else:
+                if callback:
+                    callback(button)
+                self.destroy()
 
         def button_pressed_function_generator(button):
             return lambda: button_pressed(button)
@@ -87,8 +94,9 @@ class Window(Toplevel):
 
         self.bind("<Return>", lambda _: self.destroy())
 
-        # self.grab_set()
         self.focus_set()
+
+        center(self, 50, 50)
 
     def set_message(self, message):
         self.message_label.config(text=message)

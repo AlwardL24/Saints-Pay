@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import ttk
-from tkinter.simpledialog import askstring
 from ttkthemes import ThemedTk
 import keyring
 import urllib.parse
@@ -15,7 +14,6 @@ import ui.transaction_filter
 import ui.transactions_list
 import time
 import os
-import requests
 from utils.dispatch_group import DispatchGroup
 import utils.tkinter.messagebox as messagebox
 from backend.ole import OLE
@@ -24,17 +22,16 @@ import utils.user_data_directory as udd
 import utils.system_sans_font
 import math
 from PIL import Image, ImageTk
+from sys import platform
 
 
 # TODO:
 # - consistency: use either all camelCase or all snake_case
 # - potentially add a button in payment terminal to "manually enter transaction" and create a window for creating local student
 # - add confirmation popup before clearing student cache
-# - make closing the startup window close the app
-# - make closing the dashboard window close the app, and if other windows are open prompt with a message saying all windows will be closed
 
 # - windows compatibility:
-# - tri-state not supported in windows anyways, change the tkinter checkbutton to a ttk checkbutton for select all
+# - look into how alert dialogue for closing login screen text is invisible
 
 
 root = ThemedTk(theme="arc", toplevel=True, className="Saints Pay")
@@ -51,6 +48,11 @@ def get_size_of_dir(dir: str) -> int:
             fp = os.path.join(dirpath, f)
             total_size += os.path.getsize(fp)
     return total_size
+
+
+def quit_callback():
+    root.destroy()
+    exit(0)
 
 
 def startup():
@@ -135,7 +137,7 @@ def startup():
         ),
     )
 
-    startup_window = ui.startup.Window(root)
+    startup_window = ui.startup.Window(root, quit_callback=quit_callback)
 
     # if the size of the student image cache is greater than 5MB, delete the oldest images until it is less than 5MB
     image_cache_directory = udd.get_user_data_dir(
@@ -182,8 +184,9 @@ def startup():
 
         group = DispatchGroup()
 
-        def prompt_login():
-            group.enter()
+        def prompt_login(group_enter=True):
+            if group_enter:
+                group.enter()
 
             nonlocal oleUsername, olePassword
 
@@ -205,7 +208,8 @@ def startup():
                             parent=startup_window,
                         )
 
-                        prompt_login()
+                        prompt_login(group_enter=False)
+                        return
 
                     root.after(10, callback)
                     return
@@ -226,6 +230,8 @@ def startup():
             prompt_login()
 
         def callback():
+            print("I was called")
+
             nonlocal oleUsername, olePassword, prompt_login, startup_window
             global ole
 
@@ -287,7 +293,7 @@ def startup():
 
                 ole = None
 
-                startup_window = ui.startup.Window(root)
+                startup_window = ui.startup.Window(root, quit_callback=quit_callback)
 
                 keyring.delete_password("system", "SaintsPayOLECredentials")
 
@@ -301,7 +307,12 @@ def startup():
 
             # temp = ui.transactions_list.Window(root, ole=ole)  ##
 
-            dashboard = ui.dashboard.Window(root, ole, log_out_callback=log_out)  ##
+            dashboard = ui.dashboard.Window(
+                root,
+                ole,
+                log_out_callback=log_out,
+                quit_callback=quit_callback,
+            )  ##
 
             if ole_info_title and ole_info_message:
                 messagebox.showinfo(
@@ -323,9 +334,17 @@ def startup():
 
 
 if __name__ == "__main__":
-    ico = Image.open(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets/icon.png")
-    )
+    if platform == "darwin":
+        ico = Image.open(
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "assets/macos_icon.png"
+            )
+        )
+    else:
+        ico = Image.open(
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets/icon.png")
+        )
+
     photo = ImageTk.PhotoImage(ico)
     root.wm_iconphoto(True, photo)
     root.wm_title("Saints Pay")

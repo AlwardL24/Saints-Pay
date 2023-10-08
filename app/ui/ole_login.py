@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from utils.tkinter.center import center
 
 
 class Window(Toplevel):
@@ -64,6 +65,8 @@ class Window(Toplevel):
             command=clicked,
         )
         oleLoginButton.pack(fill=X, pady=20)
+
+        center(self, 50, 50)
 
     def destroy(self) -> None:
         self.callback(None, None)
