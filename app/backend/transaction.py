@@ -32,11 +32,13 @@ class TransactionFilter:
         to_end_of: Union[datetime.date, None] = None,
         student_schoolbox_id: Union[str, None] = None,
         operator: Union[str, None] = None,
+        from_start_of_time: Union[int, None] = None,
     ):
         self.from_start_of = from_start_of
         self.to_end_of = to_end_of
         self.student_schoolbox_id = student_schoolbox_id
         self.operator = operator
+        self.from_start_of_time = from_start_of_time
 
     def transaction_matches(self, transaction: Transaction) -> bool:
         if self.from_start_of is not None:
@@ -45,6 +47,10 @@ class TransactionFilter:
                     self.from_start_of, datetime.time.min
                 ).timestamp()
             ):
+                return False
+
+        if self.from_start_of_time is not None:
+            if transaction.time < self.from_start_of_time:
                 return False
 
         if self.to_end_of is not None:
@@ -68,6 +74,9 @@ class TransactionFilter:
 
         if self.student_schoolbox_id is not None:
             string = f"{ole.student_from_id(self.student_schoolbox_id).name}'s {string}"
+
+        if self.from_start_of_time is not None:
+            string + f"This session's {string}"
 
         if self.operator is not None:
             string += f" made by {self.operator}"

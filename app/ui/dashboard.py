@@ -1,6 +1,12 @@
 from tkinter import *
 from tkinter import ttk
-from . import transactions_list, payment_terminal, export_transactions, alert
+from . import (
+    transactions_list,
+    payment_terminal,
+    export_transactions,
+    alert,
+    simplified_mode,
+)
 import backend.ole
 from utils.tkinter.center import center
 
@@ -66,15 +72,32 @@ class Window(Toplevel):
         )
         ole_logout_button.grid(row=1, column=1, sticky="NE")
 
-        # check_for_updates_button = ttk.Button(
-        #     frame,
-        #     text="Check for updates",
-        #     # font=(utils.system_sans_font.normal, 12),
-        #     # padx=10,
-        #     # pady=5,
-        #     # relief=RAISED,
-        # )
-        # check_for_updates_button.grid(row=12, column=1, sticky="SE")
+        def start_simplified_mode():
+            def callback(button):
+                if button == "Cancel":
+                    return
+
+                simplified_mode.Window(self.master, ole)
+
+            alert.Window(
+                self,
+                "Simplified Mode",
+                "Simplified Mode simplifies the Saints Pay Workflow as much as possible. Simplified Mode can be used with a touchscreen or mouse. To exit Simplified Mode, click the 'Menu' button in the top right corner of the window.",
+                style="info",
+                buttons=["Cancel", "Start Simplified Mode"],
+                callback=callback,
+            )
+
+        simplified_mode_button = ttk.Button(
+            frame,
+            text="Start Simplified Mode",
+            # font=(utils.system_sans_font.normal, 12),
+            # padx=10,
+            # pady=5,
+            # relief=RAISED,
+            command=start_simplified_mode,
+        )
+        simplified_mode_button.grid(row=12, column=1, sticky="SE")
 
         open_payment_terminal_button = ttk.Button(
             frame,

@@ -6,9 +6,18 @@ import utils.system_sans_font
 
 
 class Window(Toplevel):
-    def __init__(self, master, student: backend.ole.OLE.Student, update_notes_callback):
+    def __init__(
+        self,
+        master,
+        student: backend.ole.OLE.Student,
+        update_notes_callback,
+        is_simplified_mode=False,
+    ):
         Toplevel.__init__(self, master)
         self.title(f"Edit Notes [{student.name}]")
+
+        if is_simplified_mode:
+            self.attributes("-topmost", True)
 
         self.geometry("450x200")
         self.resizable(True, True)

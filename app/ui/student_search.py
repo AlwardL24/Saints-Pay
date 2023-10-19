@@ -3,11 +3,13 @@ from tkinter import ttk
 from typing import Callable
 from utils.tkinter.entry_with_placeholder import EntryWithPlaceholder
 from utils.tkinter.smooth_scrolled_text import SmoothScrolledText
+import utils.system_sans_font
 import time
 from threading import Timer, Thread
 import backend.ole
 from PIL import ImageTk, Image
 import os
+from . import on_screen_keyboard
 
 
 class Window(Toplevel):
@@ -20,15 +22,25 @@ class Window(Toplevel):
         ole: backend.ole.OLE,
         title: str,
         select_command: Callable[[backend.ole.OLE.Student], None],
+        is_simplified_mode: bool = False,
+        window_close_callback: callable = None,
     ):
         Toplevel.__init__(self, master)
         self.title(title)
+
+        if is_simplified_mode:
+            self.attributes("-topmost", True)
 
         self.geometry("724x770")
         self.resizable(True, True)
 
         self.ole = ole
         self.select_command = select_command
+
+        self.is_simplified_mode = is_simplified_mode
+
+        self.on_screen_keyboard = None
+        self.on_screen_keyboard_was_showing = False
 
         frame = ttk.Frame(self)
         frame.pack(padx=30, pady=20, expand=True, fill=BOTH)
@@ -41,6 +53,7 @@ class Window(Toplevel):
             placeholder="Search for a student or scan their ID card...",
             exportselection=0,
             keytyped_callback=self.search_entry_keytyped_callback,
+            font=(utils.system_sans_font.normal, 18) if is_simplified_mode else None,
         )
         self.search_entry.grid(row=0, column=0, sticky="NWSE")
 
@@ -51,17 +64,33 @@ class Window(Toplevel):
             lambda _: self.search_or_scan_for(self.search_entry.get(), False),
         )
 
+        buttons_frame = ttk.Frame(frame)
+        buttons_frame.grid(row=0, column=1, sticky="NWSE", padx=(5, 0))
+
+        if is_simplified_mode:
+            show_keyboard_button = ttk.Button(
+                buttons_frame,
+                text="Show Keyboard",
+                command=self.show_keyboard_button_pressed,
+                style="SaintsPayStyle.Simplified.TButton",
+            )
+            show_keyboard_button.grid(row=0, column=0, sticky="NWSE", padx=(0, 5))
+
         search_button = ttk.Button(
-            frame,
+            buttons_frame,
             text="Search",
             command=lambda: self.search_or_scan_for(self.search_entry.get(), False),
+            style="SaintsPayStyle.Simplified.TButton" if is_simplified_mode else None,
         )
-        search_button.grid(row=0, column=1, sticky="NWSE", padx=(5, 0))
+        search_button.grid(
+            row=0, column=0 if not is_simplified_mode else 1, sticky="NWSE"
+        )
 
         self.results_label = ttk.Label(
             frame,
             text="No results",
             justify=LEFT,
+            style="SaintsPayStyle.Simplified.TLabel" if is_simplified_mode else None,
         )
         self.results_label.grid(row=1, column=0, sticky="NWS", columnspan=2, pady=5)
 
@@ -77,10 +106,20 @@ class Window(Toplevel):
         )
         self.results_box.grid(row=2, column=0, sticky="NWSE", columnspan=2)
 
+        if window_close_callback is not None:
+            self.protocol("WM_DELETE_WINDOW", lambda: window_close_callback())
+
     def select_command_constructor(self, student):
         return lambda: self.select_command(student)
 
     def search_or_scan_for(self, value, is_scan):
+        if (
+            self.on_screen_keyboard is not None
+            and self.on_screen_keyboard.winfo_exists()
+        ):
+            self.on_screen_keyboard.destroy()
+            self.on_screen_keyboard = None
+
         self.results_label.configure(text=f'Searching for "{value}"...')
 
         def make_request():
@@ -89,6 +128,13 @@ class Window(Toplevel):
             if is_scan and len(students) > 0:
                 self.results_label.configure(
                     text=f'Scanned "{value}" - {students[0].name}'
+                )
+                self.select_command_constructor(students[0])()
+                return
+
+            if not is_scan and len(students) == 1:
+                self.results_label.configure(
+                    text=f'Searched for "{value}" - {students[0].name}'
                 )
                 self.select_command_constructor(students[0])()
                 return
@@ -125,13 +171,16 @@ class Window(Toplevel):
                 nameLabel = ttk.Label(
                     resultFrame,
                     text=f"{student.name}",
-                    style="SaintsPayStyle.BoldL.TLabel",
+                    style=f"SaintsPayStyle{ '.Simplified' if self.is_simplified_mode else '' }.BoldL.TLabel",
                 )
                 nameLabel.grid(row=0, column=1, sticky="NWS", pady=(5, 0))
 
                 infoLabel = ttk.Label(
                     resultFrame,
                     text=f"Loading...",
+                    style="SaintsPayStyle.Simplified.TLabel"
+                    if self.is_simplified_mode
+                    else None,
                 )
                 infoLabel.grid(row=1, column=1, sticky="NWS")
 
@@ -139,6 +188,9 @@ class Window(Toplevel):
                     resultFrame,
                     text="Select",
                     command=self.select_command_constructor(student),
+                    style="SaintsPayStyle.Simplified.TButton"
+                    if self.is_simplified_mode
+                    else None,
                 )
                 selectButton.grid(row=2, column=1, sticky="SW", pady=(0, 5))
 
@@ -212,3 +264,71 @@ class Window(Toplevel):
             )
 
             self.search_entry_keytyped_timer.start()
+
+    def on_screen_keyboard_event_listener(self, event):
+        if event["type"] == "SPECIAL":
+            if event["key"] == "BACKSPACE":
+                if self.search_entry.showing_placeholder:
+                    return
+
+                if (
+                    self.search_entry.select_present()
+                    and self.search_entry.index("sel.first") == 0
+                    and self.search_entry.index("sel.last")
+                    == len(self.search_entry.get())
+                    and self.search_entry.index("sel.last") != 1
+                ):
+                    self.search_entry.clear()
+                    return
+
+                self.search_entry.delete(self.search_entry.index(INSERT) - 1)
+            elif event["key"] == "ENTER":
+                self.search_or_scan_for(self.search_entry.get(), False)
+            elif event["key"] == "SPACE":
+                if (
+                    self.search_entry.select_present()
+                    and self.search_entry.index("sel.first") == 0
+                    and self.search_entry.index("sel.last")
+                    == len(self.search_entry.get())
+                    and self.search_entry.index("sel.last") != 1
+                ):
+                    self.search_entry.clear()
+
+                self.search_entry.insert(self.search_entry.index(INSERT), " ")
+            elif event["key"] == "ARROW_LEFT":
+                self.search_entry.icursor(self.search_entry.index(INSERT) - 1)
+            elif event["key"] == "ARROW_RIGHT":
+                self.search_entry.icursor(self.search_entry.index(INSERT) + 1)
+        else:
+            if (
+                self.search_entry.select_present()
+                and self.search_entry.index("sel.first") == 0
+                and self.search_entry.index("sel.last") == len(self.search_entry.get())
+                and self.search_entry.index("sel.last") != 1
+            ):
+                self.search_entry.clear()
+
+            self.search_entry.insert(self.search_entry.index(INSERT), event["key"])
+
+        self.search_entry.selection_range(
+            self.search_entry.index(INSERT) - 1, self.search_entry.index(INSERT)
+        )
+
+        self.search_entry.placeholder_check()
+
+    def show_keyboard_button_pressed(self):
+        def closed():
+            self.on_screen_keyboard_was_showing = False
+
+        self.on_screen_keyboard_was_showing = True
+        self.on_screen_keyboard = on_screen_keyboard.Window(
+            self,
+            event_listener=self.on_screen_keyboard_event_listener,
+            window_close_callback=closed,
+        )
+
+    def select_all_and_open_keyboard(self):
+        self.search_entry.selection_range(0, END)
+
+        if self.on_screen_keyboard_was_showing:
+            self.show_keyboard_button_pressed()

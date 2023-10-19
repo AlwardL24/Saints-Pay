@@ -15,12 +15,20 @@ class Window(Toplevel):
         student: backend.ole.OLE.Student,
         amount: float,
         confirmed_callback,
+        is_simplified_mode=False,
     ):
         Toplevel.__init__(self, master)
         self.title(f"Confirm Transaction")
 
+        if is_simplified_mode:
+            self.attributes("-topmost", True)
+
         self.geometry("400x180")
         self.resizable(False, False)
+
+        self.student = student
+        self.amount = amount
+        self.confirmed_callback = confirmed_callback
 
         frame = ttk.Frame(self)
         frame.pack(padx=30, pady=20, expand=True, fill=BOTH)
@@ -60,7 +68,7 @@ class Window(Toplevel):
         )
         amount_label.grid(row=1, column=1, sticky="NW")
 
-        time_now = int(time.time())
+        self.time_now = int(time.time())
 
         time_title_label = ttk.Label(
             frame,
@@ -100,24 +108,24 @@ class Window(Toplevel):
         )
         cancel_button.grid(row=0, column=0, sticky="NSEW", padx=(0, 5))
 
-        def confirm():
-            backend.transaction.new_transaction(
-                student_schoolbox_id=student.schoolbox_id,
-                amount=amount,
-                time=time_now,
-                operator=backend.operator.operator,
-            )
-
-            self.destroy()
-            confirmed_callback()
-
         confirm_button = ttk.Button(
             buttons_frame,
             text="Confirm",
-            command=confirm,
+            command=self.confirm,
         )
         confirm_button.grid(row=0, column=1, sticky="NSEW", padx=(5, 0))
 
         confirm_button.focus_set()
 
-        self.bind("<Return>", lambda _: confirm())
+        self.bind("<Return>", lambda _: self.confirm())
+
+    def confirm(self):
+        backend.transaction.new_transaction(
+            student_schoolbox_id=self.student.schoolbox_id,
+            amount=self.amount,
+            time=self.time_now,
+            operator=backend.operator.operator,
+        )
+
+        self.destroy()
+        self.confirmed_callback()

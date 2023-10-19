@@ -14,14 +14,26 @@ import os
 from . import edit_notes, confirm_transaction, blacklist_reason, transactions_list
 from datetime import datetime, timedelta
 from utils.system_agnostic_datetime_format import sadf
+from utils.tkinter.center import center
+import utils.system_sans_font
 
 
 class Window(Toplevel):
-    def __init__(self, master, student: backend.ole.OLE.Student, ole: backend.ole.OLE):
+    def __init__(
+        self,
+        master,
+        student: backend.ole.OLE.Student,
+        ole: backend.ole.OLE,
+        is_simplified_mode=False,
+        window_close_callback=None,
+    ):
         Toplevel.__init__(self, master)
         self.title(f"New Transaction [{student.name}]")
 
-        self.geometry("775x370")
+        if is_simplified_mode:
+            self.attributes("-topmost", True)
+
+        self.geometry("775x370" if not is_simplified_mode else "835x375")
         self.resizable(True, True)
 
         self.ole = ole
@@ -59,34 +71,35 @@ class Window(Toplevel):
         nameLabel = ttk.Label(
             frame,
             text=f"{student.name}",
-            style="SaintsPayStyle.BoldXXL.TLabel",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.BoldXXL.TLabel",
         )
         nameLabel.grid(row=0, column=1, sticky="NWS", pady=(0, 5))
 
         infoLabel = ttk.Label(
             frame,
             text=f"Year {student.year if student.year is not None else 'Unknown'} • {student.tutor if student.tutor is not None else 'Unknown'} • {student.id}",
-            style="SaintsPayStyle.L.TLabel",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.L.TLabel",
         )
         infoLabel.grid(row=1, column=1, sticky="NWS")
 
         emailLabel = ttk.Label(
             frame,
             text=f"{student.email}",
-            style="SaintsPayStyle.L.TLabel",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.L.TLabel",
         )
         emailLabel.grid(row=2, column=1, sticky="NWS", pady=(0, 5))
 
         notesTitleLabel = ttk.Label(
             frame,
             text=f"Notes:",
-            style="SaintsPayStyle.BoldL.TLabel",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.BoldL.TLabel",
         )
         notesTitleLabel.grid(row=3, column=1, sticky="NWS")
 
         notesLabel = ttk.Label(
             frame,
             text=backend.notes.get_notes_for_student(student.schoolbox_id),
+            style="SaintsPayStyle.Simplified.TLabel" if is_simplified_mode else None,
         )
         notesLabel.grid(row=4, column=1, sticky="NWSE", pady=(0, 5))
 
@@ -98,7 +111,7 @@ class Window(Toplevel):
         totalAmountSpentHeadingLabel = ttk.Label(
             frame,
             text=f"Total Amount Spent",
-            style="SaintsPayStyle.BoldL.TLabel",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.BoldL.TLabel",
         )
         totalAmountSpentHeadingLabel.grid(row=5, column=1, sticky="NWS")
 
@@ -116,7 +129,7 @@ class Window(Toplevel):
         totalAmountSpentTodayLabel = ttk.Label(
             frame,
             text=f"Today: ${totalAmountSpentToday:.2f}",
-            style="SaintsPayStyle.L.TLabel",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.L.TLabel",
         )
         totalAmountSpentTodayLabel.grid(row=6, column=1, sticky="NWS")
 
@@ -140,7 +153,7 @@ class Window(Toplevel):
         totalAmountSpentThisWeekLabel = ttk.Label(
             frame,
             text=f"This Week: ${totalAmountSpentThisWeek:.2f}",
-            style="SaintsPayStyle.L.TLabel",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.L.TLabel",
         )
         totalAmountSpentThisWeekLabel.grid(row=7, column=1, sticky="NWS", pady=(0, 10))
 
@@ -158,7 +171,7 @@ class Window(Toplevel):
         blacklistButton = ttk.Button(
             actionButtonsFrame,
             text="Add to Blacklist",
-            style="SaintsPayStyle.L.TButton",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.L.TButton",
             command=toggle_blacklist,
         )
         blacklistButton.grid(row=0, column=0, sticky="NWSE", padx=5)
@@ -177,19 +190,21 @@ class Window(Toplevel):
                     "Blacklisted",
                     f"Caution: {student.name} is blacklisted!\n\nBlacklisted by {blacklist_entry.operator} at {datetime.fromtimestamp(blacklist_entry.time).strftime(sadf('%a %-d %b %Y %-I:%M:%S %p'))}\nReason:\n{blacklist_entry.reason}",
                     "warning",
+                    topmost=is_simplified_mode,
                 ),
             )
 
         editNotesButton = ttk.Button(
             actionButtonsFrame,
             text="Edit Notes",
-            style="SaintsPayStyle.L.TButton",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.L.TButton",
             command=lambda: edit_notes.Window(
                 self,
                 student,
                 lambda: notesLabel.configure(
                     text=backend.notes.get_notes_for_student(student.schoolbox_id)
                 ),
+                is_simplified_mode=is_simplified_mode,
             ),
         )
         editNotesButton.grid(row=0, column=1, sticky="NWSE", padx=5)
@@ -197,13 +212,14 @@ class Window(Toplevel):
         viewPastTransactionsButton = ttk.Button(
             actionButtonsFrame,
             text="View Past Transactions",
-            style="SaintsPayStyle.L.TButton",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.L.TButton",
             command=lambda: transactions_list.Window(
                 self,
                 ole,
                 backend.transaction.TransactionFilter(
                     student_schoolbox_id=student.schoolbox_id,
                 ),
+                is_simplified_mode=is_simplified_mode,
             ),
         )
         viewPastTransactionsButton.grid(row=0, column=2, sticky="NWSE", padx=5)
@@ -216,9 +232,10 @@ class Window(Toplevel):
         cost_entry = EntryWithPlaceholder(
             cost_bar_frame,
             placeholder="Transaction Amount (e.g. 5.00)",
-            style="SaintsPayStyle.L.TEntry",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.L.TEntry",
             justify=LEFT,
             exportselection=0,
+            font=(utils.system_sans_font.normal, 18) if is_simplified_mode else None,
             # keytyped_callback=self.search_entry_keytyped_callback,
         )
         cost_entry.grid(row=0, column=0, sticky="NWSE", padx=(0, 5))
@@ -230,8 +247,10 @@ class Window(Toplevel):
         cancel_button = ttk.Button(
             cost_bar_frame,
             text="Cancel",
-            style="SaintsPayStyle.L.TButton",
-            command=lambda: self.destroy(),
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.L.TButton",
+            command=lambda: window_close_callback()
+            if window_close_callback is not None
+            else self.destroy(),
         )
         cancel_button.grid(row=0, column=1, sticky="NWSE", padx=5)
 
@@ -264,20 +283,27 @@ class Window(Toplevel):
                     "Invalid Amount",
                     'The transaction amount you entered is invalid. Please enter a valid amount, of the format "5.50".',
                     "error",
+                    topmost=is_simplified_mode,
                 )
                 return
 
-            confirm_transaction.Window(
+            confirm_transaction_window = confirm_transaction.Window(
                 self,
                 student,
                 cost,
-                lambda: self.destroy(),
+                lambda: window_close_callback()
+                if window_close_callback is not None
+                else self.destroy(),
+                is_simplified_mode=is_simplified_mode,
             )
+            center(confirm_transaction_window)
+
+            self.confirm_transaction_callback = confirm_transaction_window.confirm
 
         done_button = ttk.Button(
             cost_bar_frame,
             text="Done",
-            style="SaintsPayStyle.L.TButton",
+            style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.L.TButton",
             command=done_button_pressed,
         )
         done_button.grid(row=0, column=2, sticky="NWSE", padx=(5, 0))
@@ -322,6 +348,37 @@ class Window(Toplevel):
             args=(student, imageLabel, infoLabel, emailLabel),
         )
         thread.start()
+
+        if window_close_callback is not None:
+            self.protocol("WM_DELETE_WINDOW", lambda: window_close_callback())
+
+        if is_simplified_mode:
+
+            def listener(event):
+                if event["type"] == "SPECIAL":
+                    if event["key"] == "BACKSPACE":
+                        if cost_entry.showing_placeholder:
+                            return
+                        cost_entry.delete(cost_entry.index(INSERT) - 1)
+                    elif event["key"] == "ENTER":
+                        try:
+                            if self.confirm_transaction_callback is not None:
+                                self.confirm_transaction_callback()
+                                return
+                        except:
+                            pass
+
+                        done_button_pressed()
+                else:
+                    cost_entry.insert(cost_entry.index(INSERT), event["key"])
+
+                cost_entry.selection_range(
+                    cost_entry.index(INSERT) - 1, cost_entry.index(INSERT)
+                )
+
+                cost_entry.placeholder_check()
+
+            self.keypad_event_listener = listener
 
 
 # from ttkthemes import ThemedTk

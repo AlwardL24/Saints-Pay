@@ -19,9 +19,13 @@ class Window(Toplevel):
         callback: Union[
             Callable[[backend.transaction.TransactionFilter], None], None
         ] = None,
+        is_simplified_mode=False,
     ):
         Toplevel.__init__(self, master)
         self.title(f"Filter Transactions")
+
+        if is_simplified_mode:
+            self.attributes("-topmost", True)
 
         self.geometry("450x270")
         # self.resizable(False, False)

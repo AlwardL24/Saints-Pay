@@ -17,9 +17,13 @@ class Window(Toplevel):
         master,
         ole: backend.ole.OLE,
         filter: backend.transaction.TransactionFilter = backend.transaction.TransactionFilter(),
+        is_simplified_mode=False,
     ):
         Toplevel.__init__(self, master)
         self.title(f"Transactions")
+
+        if is_simplified_mode:
+            self.attributes("-topmost", True)
 
         self.geometry("700x400")
         # self.resizable(False, False)
@@ -60,7 +64,11 @@ class Window(Toplevel):
         def filter_button_pressed():
             (
                 lambda: transaction_filter.Window(
-                    self.master, self.ole, self.filter, filter_changed
+                    self.master,
+                    self.ole,
+                    self.filter,
+                    filter_changed,
+                    is_simplified_mode=is_simplified_mode,
                 )
             )()
 
@@ -93,6 +101,7 @@ class Window(Toplevel):
                 self.ole,
                 self.selected_transactions_objects[0],
                 lambda: self.show_transactions(),
+                is_simplified_mode=is_simplified_mode,
             ),
         )
         self.edit_button.grid(row=0, column=0, sticky="E", padx=(0, 10))
@@ -107,6 +116,7 @@ class Window(Toplevel):
                 self.selected_transactions_objects,
                 self.sort_transactions_by_attribute,
                 self.sort_transactions_ascending,
+                is_simplified_mode=is_simplified_mode,
             ),
         )
         self.export_button.grid(row=0, column=1, sticky="E", padx=(0, 10))
@@ -127,6 +137,7 @@ class Window(Toplevel):
                 f"Are you sure you want to delete {len(self.selected_transactions)} transaction{'s' if len(self.selected_transactions) != 1 else ''}?",
                 buttons=["Cancel", "Delete"],
                 callback=callback,
+                topmost=is_simplified_mode,
             )
 
         self.delete_button = ttk.Button(
@@ -396,7 +407,8 @@ class Window(Toplevel):
                 self.transactions.sort(
                     key=lambda transaction: self.ole.student_from_id(
                         transaction.student_schoolbox_id
-                    ).name,
+                    ).name
+                    or "",
                     reverse=not self.sort_transactions_ascending,
                 )
             else:

@@ -1,6 +1,5 @@
 import backend.ole
-from . import new_transaction
-from . import student_search
+from . import new_transaction, student_search
 
 
 class Window(student_search.Window):

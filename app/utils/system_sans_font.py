@@ -21,4 +21,4 @@ else:
 size_multiplier = 1.0
 
 if platform == "win32":
-    size_multiplier = 0.8
+    size_multiplier = 1.0

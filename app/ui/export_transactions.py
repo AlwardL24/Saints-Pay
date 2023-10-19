@@ -21,9 +21,13 @@ class Window(Toplevel):
         transactions: list[backend.transaction.Transaction] = [],
         sort_transactions_by_attribute: str = "STUDENT_LAST",
         sort_transactions_ascending: bool = True,
+        is_simplified_mode=False,
     ):
         Toplevel.__init__(self, master)
         self.title(f"Export Transactions")
+
+        if is_simplified_mode:
+            self.attributes("-topmost", True)
 
         self.geometry("380x470")
         # self.resizable(False, False)
@@ -156,7 +160,7 @@ class Window(Toplevel):
             variable=self.show_column_student_last_name,
         ).grid(row=5, column=0, columnspan=2, sticky="W")
 
-        self.show_column_student_username = BooleanVar(value=True)
+        self.show_column_student_username = BooleanVar(value=False)
 
         ttk.Checkbutton(
             frame,
@@ -196,7 +200,7 @@ class Window(Toplevel):
             variable=self.show_column_amount,
         ).grid(row=10, column=0, columnspan=2, sticky="W")
 
-        self.show_column_date = BooleanVar(value=True)
+        self.show_column_date = BooleanVar(value=False)
 
         ttk.Checkbutton(
             frame,
@@ -267,31 +271,71 @@ class Window(Toplevel):
                 self.filter
             )
 
-        if self.sort_transactions_by_attribute is not None:
-            if self.sort_transactions_by_attribute == "STUDENT":
-                self.transactions.sort(
-                    key=lambda transaction: self.ole.student_from_id(
+        self.export_transactions(
+            self.ole,
+            self.transactions,
+            self.sort_transactions_by_attribute,
+            self.sort_transactions_ascending,
+            self.date_format,
+            self.show_column_student_full_name.get(),
+            self.show_column_student_first_name.get(),
+            self.show_column_student_last_name.get(),
+            self.show_column_student_username.get(),
+            self.show_column_student_email.get(),
+            self.show_column_student_year_level.get(),
+            self.show_column_student_tutor_group.get(),
+            self.show_column_amount.get(),
+            self.show_column_date.get(),
+            self.show_column_time.get(),
+            self.show_column_operator_name.get(),
+        )
+
+    @staticmethod
+    def export_transactions(
+        ole: backend.ole.OLE,
+        transactions: list[backend.transaction.Transaction],
+        sort_transactions_by_attribute: str = "STUDENT_LAST",
+        sort_transactions_ascending: bool = True,
+        date_format: str = "d/mm/yy",
+        show_column_student_full_name: bool = True,
+        show_column_student_first_name: bool = False,
+        show_column_student_last_name: bool = False,
+        show_column_student_username: bool = True,
+        show_column_student_email: bool = False,
+        show_column_student_year_level: bool = False,
+        show_column_student_tutor_group: bool = True,
+        show_column_amount: bool = True,
+        show_column_date: bool = True,
+        show_column_time: bool = False,
+        show_column_operator_name: bool = False,
+        filename: str = None,
+    ):
+        if sort_transactions_by_attribute is not None:
+            if sort_transactions_by_attribute == "STUDENT":
+                transactions.sort(
+                    key=lambda transaction: ole.student_from_id(
                         transaction.student_schoolbox_id
                     ).name,
-                    reverse=not self.sort_transactions_ascending,
+                    reverse=not sort_transactions_ascending,
                 )
-            elif self.sort_transactions_by_attribute == "STUDENT_LAST":
-                self.transactions.sort(
-                    key=lambda transaction: self.ole.student_from_id(
+            elif sort_transactions_by_attribute == "STUDENT_LAST":
+                transactions.sort(
+                    key=lambda transaction: ole.student_from_id(
                         transaction.student_schoolbox_id
                     ).name.split(" ")[-1],
-                    reverse=not self.sort_transactions_ascending,
+                    reverse=not sort_transactions_ascending,
                 )
             else:
-                self.transactions.sort(
+                transactions.sort(
                     key=lambda transaction: getattr(
-                        transaction, self.sort_transactions_by_attribute
+                        transaction, sort_transactions_by_attribute
                     ),
-                    reverse=not self.sort_transactions_ascending,
+                    reverse=not sort_transactions_ascending,
                 )
 
         filename = asksaveasfilename(
-            initialfile=f"Transactions-{datetime.datetime.now().strftime(sadf('%-I-%M-%p-%-d-%m-%y'))}.xlsx",
+            initialfile=filename
+            or f"Transactions-{datetime.datetime.now().strftime(sadf('%-I-%M-%p-%-d-%m-%y'))}.xlsx",
             defaultextension=".xlsx",
             filetypes=[("Excel Spreadsheet", "*.xlsx")],
         )
@@ -301,52 +345,52 @@ class Window(Toplevel):
 
         bold = workbook.add_format({"bold": True})
         currency = workbook.add_format({"num_format": "$#,##0.00"})
-        date = workbook.add_format({"num_format": self.date_format})
+        date = workbook.add_format({"num_format": date_format})
         time = workbook.add_format({"num_format": "[$-en-NZ]h:mm:ss AM/PM"})
 
         columns = []
 
-        if self.show_column_student_full_name.get():
+        if show_column_student_full_name:
             columns.append("Student Full Name")
-        if self.show_column_student_first_name.get():
+        if show_column_student_first_name:
             columns.append("Student First Name")
-        if self.show_column_student_last_name.get():
+        if show_column_student_last_name:
             columns.append("Student Last Name")
-        if self.show_column_student_username.get():
+        if show_column_student_username:
             columns.append("Student Username")
-        if self.show_column_student_email.get():
+        if show_column_student_email:
             columns.append("Student Email")
-        if self.show_column_student_year_level.get():
+        if show_column_student_year_level:
             columns.append("Student Year Level")
-        if self.show_column_student_tutor_group.get():
+        if show_column_student_tutor_group:
             columns.append("Student Tutor Group")
-        if self.show_column_amount.get():
+        if show_column_amount:
             columns.append("Amount")
-        if self.show_column_date.get():
+        if show_column_date:
             columns.append("Date")
-        if self.show_column_time.get():
+        if show_column_time:
             columns.append("Time")
-        if self.show_column_operator_name.get():
+        if show_column_operator_name:
             columns.append("Operator Name")
 
         for col, column in enumerate(columns):
             worksheet.write(0, col, column, bold)
 
-        for row, transaction in enumerate(self.transactions):
+        for row, transaction in enumerate(transactions):
             row = row + 1
             for col, column in enumerate(columns):
                 if column == "Student Full Name":
                     worksheet.write(
                         row,
                         col,
-                        self.ole.student_from_id(transaction.student_schoolbox_id).name,
+                        ole.student_from_id(transaction.student_schoolbox_id).name,
                     )
                 elif column == "Student First Name":
                     worksheet.write(
                         row,
                         col,
                         " ".join(
-                            self.ole.student_from_id(
+                            ole.student_from_id(
                                 transaction.student_schoolbox_id
                             ).name.split(" ")[:-1]
                         ),
@@ -355,7 +399,7 @@ class Window(Toplevel):
                     worksheet.write(
                         row,
                         col,
-                        self.ole.student_from_id(
+                        ole.student_from_id(
                             transaction.student_schoolbox_id
                         ).name.split(" ")[-1],
                     )
@@ -363,34 +407,28 @@ class Window(Toplevel):
                     worksheet.write(
                         row,
                         col,
-                        self.ole.student_from_id(
-                            transaction.student_schoolbox_id
-                        ).username,
+                        ole.student_from_id(transaction.student_schoolbox_id).username,
                     )
                 elif column == "Student Email":
                     worksheet.write(
                         row,
                         col,
-                        self.ole.student_from_id(
-                            transaction.student_schoolbox_id
-                        ).email,
+                        ole.student_from_id(transaction.student_schoolbox_id).email,
                     )
                 elif column == "Student Year Level":
                     worksheet.write(
                         row,
                         col,
-                        self.ole.student_from_id(transaction.student_schoolbox_id).year,
+                        ole.student_from_id(transaction.student_schoolbox_id).year,
                     )
                 elif column == "Student Tutor Group":
                     worksheet.write(
                         row,
                         col,
-                        self.ole.student_from_id(
+                        ole.student_from_id(
                             transaction.student_schoolbox_id
                         ).tutor.split(" - ")[0]
-                        if self.ole.student_from_id(
-                            transaction.student_schoolbox_id
-                        ).tutor
+                        if ole.student_from_id(transaction.student_schoolbox_id).tutor
                         is not None
                         else "",
                     )
@@ -415,7 +453,7 @@ class Window(Toplevel):
 
         worksheet.autofit()
 
-        if self.date_format == "[$-en-NZ]ddd d mmm yyyy":
+        if date_format == "[$-en-NZ]ddd d mmm yyyy":
             worksheet.set_column(
                 [i for i, x in enumerate(columns) if x == "Date"][0],
                 [i for i, x in enumerate(columns) if x == "Date"][0],

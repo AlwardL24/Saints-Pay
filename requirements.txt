@@ -6,3 +6,4 @@ typing_extensions==4.8.0
 ttkthemes==3.2.2
 tkScrolledFrame==1.0.4
 XlsxWriter==3.1.6
+pyautogui==0.9.54

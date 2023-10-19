@@ -15,9 +15,13 @@ class Window(Toplevel):
         ole: backend.ole.OLE,
         transaction: backend.transaction.Transaction,
         callback: callable,
+        is_simplified_mode=False,
     ):
         Toplevel.__init__(self, master)
         self.title(f"Edit Transaction")
+
+        if is_simplified_mode:
+            self.attributes("-topmost", True)
 
         self.geometry("450x270")
         # self.resizable(False, False)

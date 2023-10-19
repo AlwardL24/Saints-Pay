@@ -17,10 +17,14 @@ class Window(Toplevel):
         callback: Callable[[str], None] = None,
         inputs: list[StringVar] = [],
         destroy_first: bool = True,
+        topmost: bool = False,
     ):
         Toplevel.__init__(self, parent)
 
         self.title(title)
+
+        if topmost:
+            self.attributes("-topmost", True)
 
         self.geometry("340x120")
         self.resizable(False, False)
@@ -62,6 +66,8 @@ class Window(Toplevel):
         def button_pressed_function_generator(button):
             return lambda: button_pressed(button)
 
+        req_width = 98
+
         for i, button in enumerate(buttons):
             button = ttk.Button(
                 buttons_frame,
@@ -70,8 +76,16 @@ class Window(Toplevel):
             )
             button.grid(row=0, column=i, padx=(0, 10))
 
+            button.update_idletasks()
+            req_width += button.winfo_reqwidth() + 10
+
             if len(buttons) - 1 == i:
                 button.focus_set()
+
+        print(req_width)
+
+        if req_width > self.winfo_width():
+            self.geometry(f"{req_width}x{self.winfo_height()}")
 
         def wrap_message_label(_):
             self.message_label.config(wraplength=self.message_label.winfo_width())

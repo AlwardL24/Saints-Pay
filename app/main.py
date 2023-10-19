@@ -74,12 +74,30 @@ def startup():
         ),
     )
 
+    saints_pay_style_simplified_tlabel = ttk.Style()
+    saints_pay_style_simplified_tlabel.configure(
+        "SaintsPayStyle.Simplified.TLabel",
+        font=(
+            utils.system_sans_font.normal,
+            int(16 * utils.system_sans_font.size_multiplier),
+        ),
+    )
+
     saints_pay_style_l_tlabel = ttk.Style()
     saints_pay_style_l_tlabel.configure(
         "SaintsPayStyle.L.TLabel",
         font=(
             utils.system_sans_font.normal,
             int(14 * utils.system_sans_font.size_multiplier),
+        ),
+    )
+
+    saints_pay_style_simplified_l_tlabel = ttk.Style()
+    saints_pay_style_simplified_l_tlabel.configure(
+        "SaintsPayStyle.Simplified.L.TLabel",
+        font=(
+            utils.system_sans_font.normal,
+            int(18 * utils.system_sans_font.size_multiplier),
         ),
     )
 
@@ -92,12 +110,30 @@ def startup():
         ),
     )
 
+    saints_pay_style_simplified_bold_tlabel = ttk.Style()
+    saints_pay_style_simplified_bold_tlabel.configure(
+        "SaintsPayStyle.Simplified.Bold.TLabel",
+        font=(
+            utils.system_sans_font.bold,
+            int(16 * utils.system_sans_font.size_multiplier),
+        ),
+    )
+
     saints_pay_style_boldl_tlabel = ttk.Style()
     saints_pay_style_boldl_tlabel.configure(
         "SaintsPayStyle.BoldL.TLabel",
         font=(
             utils.system_sans_font.bold,
             int(14 * utils.system_sans_font.size_multiplier),
+        ),
+    )
+
+    saints_pay_style_simplified_boldl_tlabel = ttk.Style()
+    saints_pay_style_simplified_boldl_tlabel.configure(
+        "SaintsPayStyle.Simplified.BoldL.TLabel",
+        font=(
+            utils.system_sans_font.bold,
+            int(18 * utils.system_sans_font.size_multiplier),
         ),
     )
 
@@ -119,6 +155,24 @@ def startup():
         ),
     )
 
+    saints_pay_style_simplified_boldxxl_tlabel = ttk.Style()
+    saints_pay_style_simplified_boldxxl_tlabel.configure(
+        "SaintsPayStyle.Simplified.BoldXXL.TLabel",
+        font=(
+            utils.system_sans_font.bold,
+            int(32 * utils.system_sans_font.size_multiplier),
+        ),
+    )
+
+    saints_pay_style_simplified_tbutton = ttk.Style()
+    saints_pay_style_simplified_tbutton.configure(
+        "SaintsPayStyle.Simplified.TButton",
+        font=(
+            utils.system_sans_font.normal,
+            int(16 * utils.system_sans_font.size_multiplier),
+        ),
+    )
+
     saints_pay_style_l_tbutton = ttk.Style()
     saints_pay_style_l_tbutton.configure(
         "SaintsPayStyle.L.TButton",
@@ -128,12 +182,30 @@ def startup():
         ),
     )
 
+    saints_pay_style_simplified_l_tbutton = ttk.Style()
+    saints_pay_style_simplified_l_tbutton.configure(
+        "SaintsPayStyle.Simplified.L.TButton",
+        font=(
+            utils.system_sans_font.normal,
+            int(18 * utils.system_sans_font.size_multiplier),
+        ),
+    )
+
     saints_pay_style_l_tentry = ttk.Style()
     saints_pay_style_l_tentry.configure(
         "SaintsPayStyle.L.TEntry",
         font=(
             utils.system_sans_font.normal,
             int(14 * utils.system_sans_font.size_multiplier),
+        ),
+    )
+
+    saints_pay_style_simplified_l_tentry = ttk.Style()
+    saints_pay_style_simplified_l_tentry.configure(
+        "SaintsPayStyle.Simplified.L.TEntry",
+        font=(
+            utils.system_sans_font.normal,
+            int(18 * utils.system_sans_font.size_multiplier),
         ),
     )
 
