@@ -19,7 +19,9 @@ class Window(Toplevel):
         if is_simplified_mode:
             self.attributes("-topmost", True)
 
-        self.geometry("450x200")
+        self.geometry(
+            f"{int(utils.system_sans_font.window_size_multiplier * 450)}x{int(utils.system_sans_font.window_size_multiplier * 200)}"
+        )
         self.resizable(True, True)
 
         frame = ttk.Frame(self)
@@ -36,7 +38,7 @@ class Window(Toplevel):
             entry_for_looks,
             font=(
                 utils.system_sans_font.normal,
-                12,
+                int(12 * utils.system_sans_font.size_multiplier),
             ),
             bg="white",
             highlightthickness=0,

@@ -31,7 +31,9 @@ class Window(Toplevel):
         if is_simplified_mode:
             self.attributes("-topmost", True)
 
-        self.geometry("724x770")
+        self.geometry(
+            f"{int(utils.system_sans_font.window_size_multiplier * 724)}x{int(utils.system_sans_font.window_size_multiplier * 770)}"
+        )
         self.resizable(True, True)
 
         self.ole = ole
@@ -53,7 +55,15 @@ class Window(Toplevel):
             placeholder="Search for a student or scan their ID card...",
             exportselection=0,
             keytyped_callback=self.search_entry_keytyped_callback,
-            font=(utils.system_sans_font.normal, 18) if is_simplified_mode else None,
+            font=(
+                utils.system_sans_font.normal,
+                int(18 * utils.system_sans_font.size_multiplier),
+            )
+            if is_simplified_mode
+            else (
+                utils.system_sans_font.normal,
+                int(12 * utils.system_sans_font.size_multiplier),
+            ),
         )
         self.search_entry.grid(row=0, column=0, sticky="NWSE")
 

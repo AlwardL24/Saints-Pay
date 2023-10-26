@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import pyautogui
 from utils.tkinter.center import center
+import utils.system_sans_font
 
 
 class Window(tk.Toplevel):
@@ -91,10 +92,18 @@ class Window(tk.Toplevel):
         number_rows = len(keyboard_lines)
         number_cols = max([len(line) for line in keyboard_lines])
 
-        self.columnconfigure(list(range(number_cols)), minsize=35)
-        self.rowconfigure(list(range(number_rows)), minsize=35)
+        self.columnconfigure(
+            list(range(number_cols)),
+            minsize=utils.system_sans_font.window_size_multiplier * 35,
+        )
+        self.rowconfigure(
+            list(range(number_rows)),
+            minsize=utils.system_sans_font.window_size_multiplier * 35,
+        )
 
-        self.geometry(f"{number_cols * 35}x{number_rows * 35}")
+        self.geometry(
+            f"{number_cols * int(utils.system_sans_font.window_size_multiplier * 35)}x{number_rows * int(utils.system_sans_font.window_size_multiplier * 35)}"
+        )
         self.resizable(False, False)
 
         def press_function_constructor(num):

@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from utils.tkinter.center import center
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -13,7 +14,9 @@ class Window(Toplevel):
 
         self.callback = callback
 
-        self.geometry("350x450")
+        self.geometry(
+            f"{int(utils.system_sans_font.window_size_multiplier * 350)}x{int(utils.system_sans_font.window_size_multiplier * 450)}"
+        )
         self.resizable(False, False)
 
         def focus():

@@ -8,6 +8,7 @@ from utils.date_entry import Datepicker
 from . import student_search
 from typing import Callable, Union
 from utils.system_agnostic_datetime_format import sadf
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -27,7 +28,9 @@ class Window(Toplevel):
         if is_simplified_mode:
             self.attributes("-topmost", True)
 
-        self.geometry("450x270")
+        self.geometry(
+            f"{int(utils.system_sans_font.window_size_multiplier * 450)}x{int(utils.system_sans_font.window_size_multiplier * 270)}"
+        )
         # self.resizable(False, False)
 
         self.filter = filter

@@ -33,7 +33,11 @@ class Window(Toplevel):
         if is_simplified_mode:
             self.attributes("-topmost", True)
 
-        self.geometry("775x370" if not is_simplified_mode else "835x375")
+        self.geometry(
+            f"{int(utils.system_sans_font.window_size_multiplier * 775)}x{int(utils.system_sans_font.window_size_multiplier * 370)}"
+            if not is_simplified_mode
+            else f"{int(utils.system_sans_font.window_size_multiplier * 835)}x{int(utils.system_sans_font.window_size_multiplier * 390)}"
+        )
         self.resizable(True, True)
 
         self.ole = ole
@@ -235,7 +239,15 @@ class Window(Toplevel):
             style=f"SaintsPayStyle{ '.Simplified' if is_simplified_mode else '' }.L.TEntry",
             justify=LEFT,
             exportselection=0,
-            font=(utils.system_sans_font.normal, 18) if is_simplified_mode else None,
+            font=(
+                utils.system_sans_font.normal,
+                int(18 * utils.system_sans_font.size_multiplier),
+            )
+            if is_simplified_mode
+            else (
+                utils.system_sans_font.normal,
+                int(12 * utils.system_sans_font.size_multiplier),
+            ),
             # keytyped_callback=self.search_entry_keytyped_callback,
         )
         cost_entry.grid(row=0, column=0, sticky="NWSE", padx=(0, 5))

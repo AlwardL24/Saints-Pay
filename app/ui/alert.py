@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 from typing import Callable
 import os
 from utils.tkinter.center import center
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -26,7 +27,9 @@ class Window(Toplevel):
         if topmost:
             self.attributes("-topmost", True)
 
-        self.geometry("340x120")
+        self.geometry(
+            f"{int(utils.system_sans_font.window_size_multiplier * 340)}x{int(utils.system_sans_font.window_size_multiplier * 120)}"
+        )
         self.resizable(False, False)
 
         frame = ttk.Frame(self)

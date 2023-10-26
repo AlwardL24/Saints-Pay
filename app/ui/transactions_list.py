@@ -9,6 +9,7 @@ from . import transaction_filter, alert, export_transactions, edit_transaction
 import datetime
 from typing import Callable, Union
 from utils.system_agnostic_datetime_format import sadf
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -25,7 +26,9 @@ class Window(Toplevel):
         if is_simplified_mode:
             self.attributes("-topmost", True)
 
-        self.geometry("700x400")
+        self.geometry(
+            f"{int(utils.system_sans_font.window_size_multiplier * 700)}x{int(utils.system_sans_font.window_size_multiplier * 400)}"
+        )
         # self.resizable(False, False)
 
         self.filter = filter

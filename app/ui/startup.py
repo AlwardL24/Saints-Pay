@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from . import alert
 from utils.tkinter.center import center
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -9,7 +10,9 @@ class Window(Toplevel):
         Toplevel.__init__(self, master)
         self.title("Starting Saints Pay...")
 
-        self.geometry("300x120")
+        self.geometry(
+            f"{int(utils.system_sans_font.window_size_multiplier * 300)}x{int(utils.system_sans_font.window_size_multiplier * 120)}"
+        )
         self.resizable(False, False)
 
         self.quit_callback = quit_callback

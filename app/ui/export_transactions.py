@@ -11,6 +11,7 @@ import datetime
 from typing import Callable, Union
 import xlsxwriter
 from utils.system_agnostic_datetime_format import sadf
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -29,7 +30,9 @@ class Window(Toplevel):
         if is_simplified_mode:
             self.attributes("-topmost", True)
 
-        self.geometry("380x470")
+        self.geometry(
+            f"{int(utils.system_sans_font.window_size_multiplier * 380)}x{int(utils.system_sans_font.window_size_multiplier * 470)}"
+        )
         # self.resizable(False, False)
 
         self.ole = ole

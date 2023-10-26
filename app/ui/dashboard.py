@@ -9,6 +9,7 @@ from . import (
 )
 import backend.ole
 from utils.tkinter.center import center
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -25,7 +26,9 @@ class Window(Toplevel):
 
         self.title("Saints Pay")
 
-        self.geometry("724x433")
+        self.geometry(
+            f"{int(utils.system_sans_font.window_size_multiplier * 724)}x{int(utils.system_sans_font.window_size_multiplier * 433)}"
+        )
         self.resizable(True, True)
 
         self.quit_callback = quit_callback

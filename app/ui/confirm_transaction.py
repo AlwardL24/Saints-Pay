@@ -6,6 +6,7 @@ import backend.operator
 from datetime import datetime
 import time
 from utils.system_agnostic_datetime_format import sadf
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -23,7 +24,9 @@ class Window(Toplevel):
         if is_simplified_mode:
             self.attributes("-topmost", True)
 
-        self.geometry("400x180")
+        self.geometry(
+            f"{int(utils.system_sans_font.window_size_multiplier * 400)}x{int(utils.system_sans_font.window_size_multiplier * 180)}"
+        )
         self.resizable(False, False)
 
         self.student = student
