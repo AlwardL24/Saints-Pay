@@ -25,9 +25,9 @@ class Window(Toplevel):
             self.attributes("-topmost", True)
 
         self.geometry(
-            f"{int(utils.system_sans_font.window_size_multiplier * 400)}x{int(utils.system_sans_font.window_size_multiplier * 180)}"
+            f"{int(utils.system_sans_font.window_size_multiplier * 400)}x{int(utils.system_sans_font.window_size_multiplier * 240)}"
         )
-        self.resizable(False, False)
+        # self.resizable(False, False)
 
         self.student = student
         self.amount = amount
@@ -35,6 +35,73 @@ class Window(Toplevel):
 
         frame = ttk.Frame(self)
         frame.pack(padx=30, pady=20, expand=True, fill=BOTH)
+
+        buttons_frame = ttk.Frame(frame)
+        buttons_frame.grid(row=4, column=0, columnspan=2, sticky="SE")
+
+        self.time_now = int(time.time())
+
+        cancel_button = ttk.Button(
+            buttons_frame,
+            text="Cancel",
+            command=lambda: self.destroy(),
+            style="SaintsPayStyle.Simplified.TButton" if is_simplified_mode else None,
+        )
+        cancel_button.grid(row=0, column=0, sticky="NSEW", padx=(0, 5))
+
+        confirm_button = ttk.Button(
+            buttons_frame,
+            text="Confirm",
+            command=self.confirm,
+            style="SaintsPayStyle.Simplified.TButton" if is_simplified_mode else None,
+        )
+        confirm_button.grid(row=0, column=1, sticky="NSEW", padx=(5, 0))
+
+        confirm_button.focus_set()
+
+        self.bind("<Return>", lambda _: self.confirm())
+
+        if is_simplified_mode:
+            cost_canvas = Canvas(
+                frame,
+                width=0,
+                height=0,
+            )
+            cost_canvas.grid(row=0, column=0, columnspan=2, sticky="NSEW")
+
+            def configure_cost_canvas():
+                width = frame.winfo_width() - 5
+                height = frame.winfo_height() - 10 - buttons_frame.winfo_height()
+
+                cost_canvas.configure(
+                    width=width,
+                    height=height,
+                )
+
+                cost_canvas.delete("all")
+
+                amount_as_string = str(int(amount * 100))
+
+                cost_canvas.create_text(
+                    (width) / 2,
+                    (height) / 2,
+                    text=f"${amount_as_string[:-2]}.{amount_as_string[-2:]}",
+                    angle=180,
+                    anchor="center",
+                    font=(
+                        utils.system_sans_font.bold,
+                        int(80 * utils.system_sans_font.size_multiplier),
+                    ),
+                )
+
+            self.bind(
+                "<Configure>",
+                lambda _: configure_cost_canvas(),
+            )
+
+            configure_cost_canvas()
+
+            return
 
         frame.rowconfigure(4, weight=1)
 
@@ -71,8 +138,6 @@ class Window(Toplevel):
         )
         amount_label.grid(row=1, column=1, sticky="NW")
 
-        self.time_now = int(time.time())
-
         time_title_label = ttk.Label(
             frame,
             text=f"Time:",
@@ -100,27 +165,6 @@ class Window(Toplevel):
             style="SaintsPayStyle.L.TLabel",
         )
         operator_label.grid(row=3, column=1, sticky="NW", pady=(0, 10))
-
-        buttons_frame = ttk.Frame(frame)
-        buttons_frame.grid(row=4, column=0, columnspan=2, sticky="SE")
-
-        cancel_button = ttk.Button(
-            buttons_frame,
-            text="Cancel",
-            command=lambda: self.destroy(),
-        )
-        cancel_button.grid(row=0, column=0, sticky="NSEW", padx=(0, 5))
-
-        confirm_button = ttk.Button(
-            buttons_frame,
-            text="Confirm",
-            command=self.confirm,
-        )
-        confirm_button.grid(row=0, column=1, sticky="NSEW", padx=(5, 0))
-
-        confirm_button.focus_set()
-
-        self.bind("<Return>", lambda _: self.confirm())
 
     def confirm(self):
         backend.transaction.new_transaction(

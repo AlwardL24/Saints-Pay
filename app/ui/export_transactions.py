@@ -300,15 +300,16 @@ class Window(Toplevel):
         sort_transactions_by_attribute: str = "STUDENT_LAST",
         sort_transactions_ascending: bool = True,
         date_format: str = "d/mm/yy",
+        show_column_date: bool = True,
+        show_column_student_number: bool = True,
         show_column_student_full_name: bool = True,
         show_column_student_first_name: bool = False,
         show_column_student_last_name: bool = False,
-        show_column_student_username: bool = True,
+        show_column_student_username: bool = False,
         show_column_student_email: bool = False,
         show_column_student_year_level: bool = False,
-        show_column_student_tutor_group: bool = True,
         show_column_amount: bool = True,
-        show_column_date: bool = True,
+        show_column_student_tutor_group: bool = True,
         show_column_time: bool = False,
         show_column_operator_name: bool = False,
         filename: str = None,
@@ -353,6 +354,10 @@ class Window(Toplevel):
 
         columns = []
 
+        if show_column_date:
+            columns.append("Date")
+        if show_column_student_number:
+            columns.append("Student Number")
         if show_column_student_full_name:
             columns.append("Student Full Name")
         if show_column_student_first_name:
@@ -365,12 +370,10 @@ class Window(Toplevel):
             columns.append("Student Email")
         if show_column_student_year_level:
             columns.append("Student Year Level")
-        if show_column_student_tutor_group:
-            columns.append("Student Tutor Group")
         if show_column_amount:
             columns.append("Amount")
-        if show_column_date:
-            columns.append("Date")
+        if show_column_student_tutor_group:
+            columns.append("Student Tutor Group")
         if show_column_time:
             columns.append("Time")
         if show_column_operator_name:
@@ -387,6 +390,12 @@ class Window(Toplevel):
                         row,
                         col,
                         ole.student_from_id(transaction.student_schoolbox_id).name,
+                    )
+                elif column == "Student Number":
+                    worksheet.write(
+                        row,
+                        col,
+                        ole.student_from_id(transaction.student_schoolbox_id).id,
                     )
                 elif column == "Student First Name":
                     worksheet.write(

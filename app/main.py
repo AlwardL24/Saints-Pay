@@ -171,6 +171,7 @@ def startup():
             utils.system_sans_font.normal,
             int(16 * utils.system_sans_font.size_multiplier),
         ),
+        padding=10,
     )
 
     saints_pay_style_l_tbutton = ttk.Style()
@@ -189,6 +190,7 @@ def startup():
             utils.system_sans_font.normal,
             int(18 * utils.system_sans_font.size_multiplier),
         ),
+        padding=10,
     )
 
     saints_pay_style_l_tentry = ttk.Style()

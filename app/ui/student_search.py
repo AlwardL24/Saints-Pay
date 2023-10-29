@@ -264,6 +264,9 @@ class Window(Toplevel):
                 if len(value) <= 2:
                     return
 
+                if len("".join(c for c in value if c.isdigit())) <= 2:
+                    return
+
                 self.search_entry.clear()
 
                 self.search_or_scan_for("".join(c for c in value if c.isdigit()), True)

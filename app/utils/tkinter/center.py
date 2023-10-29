@@ -12,7 +12,11 @@ def center(win, offset_x=0, offset_y=0):
     win_height = height + titlebar_height + frm_width
     x = win.winfo_screenwidth() // 2 - win_width // 2
     y = win.winfo_screenheight() // 2 - win_height // 2
-    win.geometry("{}x{}+{}+{}".format(width, height, x + offset_x, y + offset_y))
+    win.geometry(
+        "{}x{}+{}+{}".format(
+            int(width), int(height), int(x + offset_x), int(y + offset_y)
+        )
+    )
     win.deiconify()
 
 
@@ -40,5 +44,5 @@ def center_within_rect(win, rect, resize_window_if_larger=False):
 
     x = rect["x"] + rect["width"] // 2 - win_width // 2
     y = rect["y"] + rect["height"] // 2 - win_height // 2
-    win.geometry("{}x{}+{}+{}".format(width, height, x, y))
+    win.geometry("{}x{}+{}+{}".format(int(width), int(height), int(x), int(y)))
     win.deiconify()

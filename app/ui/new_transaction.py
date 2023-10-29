@@ -14,7 +14,7 @@ import os
 from . import edit_notes, confirm_transaction, blacklist_reason, transactions_list
 from datetime import datetime, timedelta
 from utils.system_agnostic_datetime_format import sadf
-from utils.tkinter.center import center
+from utils.tkinter.center import center, center_within_rect
 import utils.system_sans_font
 
 
@@ -26,6 +26,7 @@ class Window(Toplevel):
         ole: backend.ole.OLE,
         is_simplified_mode=False,
         window_close_callback=None,
+        confirm_transaction_rect=None,
     ):
         Toplevel.__init__(self, master)
         self.title(f"New Transaction [{student.name}]")
@@ -36,7 +37,7 @@ class Window(Toplevel):
         self.geometry(
             f"{int(utils.system_sans_font.window_size_multiplier * 775)}x{int(utils.system_sans_font.window_size_multiplier * 370)}"
             if not is_simplified_mode
-            else f"{int(utils.system_sans_font.window_size_multiplier * 835)}x{int(utils.system_sans_font.window_size_multiplier * 390)}"
+            else f"{int(utils.system_sans_font.window_size_multiplier * 940)}x{int(utils.system_sans_font.window_size_multiplier * 430)}"
         )
         self.resizable(True, True)
 
@@ -308,7 +309,12 @@ class Window(Toplevel):
                 else self.destroy(),
                 is_simplified_mode=is_simplified_mode,
             )
-            center(confirm_transaction_window)
+            if confirm_transaction_rect is not None:
+                center_within_rect(
+                    confirm_transaction_window, confirm_transaction_rect, True
+                )
+            else:
+                center(confirm_transaction_window)
 
             self.confirm_transaction_callback = confirm_transaction_window.confirm
 

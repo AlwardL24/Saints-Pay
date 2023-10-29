@@ -13,6 +13,7 @@ from . import (
 from utils.tkinter.center import center_within_rect
 from datetime import datetime
 from utils.system_agnostic_datetime_format import sadf
+import utils.system_sans_font
 
 
 class Window(Toplevel):
@@ -53,8 +54,8 @@ class Window(Toplevel):
         self.update_idletasks()
 
         self.spacing = 10
-        self.sidebar_width = 400
-        self.menu_popup_height = 300
+        self.sidebar_width = 600 * utils.system_sans_font.window_size_multiplier
+        self.menu_popup_height = 400 * utils.system_sans_font.window_size_multiplier
 
         self.screen_rect = {
             "x": 0,
@@ -98,6 +99,7 @@ class Window(Toplevel):
                 ole=self.ole,
                 is_simplified_mode=True,
                 window_close_callback=open_student_search_window,
+                confirm_transaction_rect=self.menu_popup_rect,
             )
             center_within_rect(
                 self.new_transaction_window,
@@ -130,7 +132,7 @@ class Window(Toplevel):
             center_within_rect(
                 self.numpad_window,
                 self.numpad_rect,
-                resize_window_if_larger=True,
+                resize_window_if_larger=False,
             )
 
         def open_student_search_window():
