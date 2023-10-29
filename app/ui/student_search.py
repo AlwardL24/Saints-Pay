@@ -341,6 +341,8 @@ class Window(Toplevel):
         )
 
     def select_all_and_open_keyboard(self):
+        self.search_entry.focus()
+
         self.search_entry.selection_range(0, END)
 
         if self.on_screen_keyboard_was_showing:
