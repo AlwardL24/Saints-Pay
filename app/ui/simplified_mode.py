@@ -131,6 +131,7 @@ class Window(Toplevel):
                     "¦¦¦¦††¦¦"
                 ),
                 start_hidden=True,
+                give_back_focus_callback=self.new_transaction_window.give_back_focus_callback,
             )
             center_within_rect(
                 self.numpad_window,

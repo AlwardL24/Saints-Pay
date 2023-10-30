@@ -262,6 +262,19 @@ class Window(Toplevel):
 
         cost_entry.bind("<Return>", lambda _: done_button_pressed())
 
+        def give_back_focus_callback():
+            cost_entry.focus()
+
+            # clear cost_entry selection and move cursor to end
+
+            def callback():
+                cost_entry.selection_clear()
+                cost_entry.icursor(END)
+
+            self.after(1, callback)
+
+        self.give_back_focus_callback = give_back_focus_callback
+
         cancel_button = ttk.Button(
             cost_bar_frame,
             text="Cancel",
@@ -310,7 +323,7 @@ class Window(Toplevel):
                 return
 
             def canceled_callback():
-                 self.confirm_transaction_callback = None
+                self.confirm_transaction_callback = None
 
             confirm_transaction_window = confirm_transaction.Window(
                 self,
