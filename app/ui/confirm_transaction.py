@@ -16,6 +16,7 @@ class Window(Toplevel):
         student: backend.ole.OLE.Student,
         amount: float,
         confirmed_callback,
+        canceled_callback=None,
         is_simplified_mode=False,
     ):
         Toplevel.__init__(self, master)
@@ -41,10 +42,16 @@ class Window(Toplevel):
 
         self.time_now = int(time.time())
 
+        def cancel_button_pressed():
+            if canceled_callback is not None:
+                canceled_callback()
+
+            self.destroy()
+
         cancel_button = ttk.Button(
             buttons_frame,
             text="Cancel",
-            command=lambda: self.destroy(),
+            command=cancel_button_pressed,
             style="SaintsPayStyle.Simplified.TButton" if is_simplified_mode else None,
         )
         cancel_button.grid(row=0, column=0, sticky="NSEW", padx=(0, 5))
@@ -167,6 +174,7 @@ class Window(Toplevel):
         operator_label.grid(row=3, column=1, sticky="NW", pady=(0, 10))
 
     def confirm(self):
+        print("CALLED")
         backend.transaction.new_transaction(
             student_schoolbox_id=self.student.schoolbox_id,
             amount=self.amount,
