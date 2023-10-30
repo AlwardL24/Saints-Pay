@@ -27,8 +27,12 @@ class Window(Toplevel):
         is_simplified_mode=False,
         window_close_callback=None,
         confirm_transaction_rect=None,
+        start_hidden=False,
     ):
         Toplevel.__init__(self, master)
+        if start_hidden:
+            self.attributes("-alpha", 0.0)
+
         self.title(f"New Transaction [{student.name}]")
 
         if is_simplified_mode:

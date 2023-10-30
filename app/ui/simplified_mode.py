@@ -35,6 +35,7 @@ class Window(Toplevel):
                 self.ole,
                 exit_callback=lambda: self.destroy(),
                 session_start_time=self.session_start_time,
+                start_hidden=True,
             )
             center_within_rect(
                 self.menu,
@@ -100,6 +101,7 @@ class Window(Toplevel):
                 is_simplified_mode=True,
                 window_close_callback=open_student_search_window,
                 confirm_transaction_rect=self.menu_popup_rect,
+                start_hidden=True,
             )
             center_within_rect(
                 self.new_transaction_window,
@@ -128,6 +130,7 @@ class Window(Toplevel):
                     "0¦¦¦.†¦¦" + "\n"
                     "¦¦¦¦††¦¦"
                 ),
+                start_hidden=True,
             )
             center_within_rect(
                 self.numpad_window,
@@ -160,6 +163,7 @@ class Window(Toplevel):
                 select_command=select_command,
                 is_simplified_mode=True,
                 window_close_callback=lambda: None,
+                start_hidden=True,
             )
             center_within_rect(
                 self.student_search_window,
@@ -171,8 +175,13 @@ class Window(Toplevel):
 
 
 class Menu(Toplevel):
-    def __init__(self, master, ole, exit_callback, session_start_time):
+    def __init__(
+        self, master, ole, exit_callback, session_start_time, start_hidden=False
+    ):
         Toplevel.__init__(self, master)
+        if start_hidden:
+            self.attributes("-alpha", 0.0)
+
         self.title("Menu")
         self.geometry("400x300")
         self.attributes("-topmost", True)
@@ -194,7 +203,7 @@ class Menu(Toplevel):
             style="SaintsPayStyle.Simplified.TButton",
         )
         self.view_button.pack(
-            side=TOP, anchor="nw", padx=10, pady=10, expand=True, fill=BOTH
+            side=TOP, anchor="nw", padx=10, pady=(10, 5), expand=True, fill=BOTH
         )
 
         def export_transactions_command():
@@ -231,16 +240,50 @@ class Menu(Toplevel):
             style="SaintsPayStyle.Simplified.TButton",
         )
         self.done_button.pack(
-            side=TOP, anchor="nw", padx=10, pady=10, expand=True, fill=BOTH
+            side=TOP, anchor="nw", padx=10, pady=5, expand=True, fill=BOTH
         )
+
+        def exit_button_pressed():
+            # show alert
+            def callback(button):
+                if button == "Cancel":
+                    return
+
+                exit_callback()
+
+            alert.Window(
+                self,
+                "Exit Simplified Mode",
+                "Are you sure you want to exit Simplified Mode?",
+                style="warning",
+                buttons=["Cancel", "Exit Simplified Mode"],
+                callback=callback,
+                topmost=True,
+            )
 
         self.exit_button = ttk.Button(
             self,
-            text="Exit",
-            command=exit_callback,
+            text="Exit Simplified Mode",
+            command=exit_button_pressed,
             padding=10,
             style="SaintsPayStyle.Simplified.TButton",
         )
         self.exit_button.pack(
-            side=TOP, anchor="nw", padx=10, pady=10, expand=True, fill=BOTH
+            side=TOP, anchor="nw", padx=10, pady=5, expand=True, fill=BOTH
+        )
+
+        # close button
+
+        def close_button_pressed():
+            self.destroy()
+
+        self.close_button = ttk.Button(
+            self,
+            text="Close Menu",
+            command=close_button_pressed,
+            padding=10,
+            style="SaintsPayStyle.Simplified.TButton",
+        )
+        self.close_button.pack(
+            side=TOP, anchor="nw", padx=10, pady=(5, 10), expand=True, fill=BOTH
         )

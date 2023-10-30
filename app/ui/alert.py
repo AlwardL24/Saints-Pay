@@ -21,6 +21,7 @@ class Window(Toplevel):
         topmost: bool = False,
     ):
         Toplevel.__init__(self, parent)
+        self.attributes("-alpha", 0.0)
 
         self.title(title)
 

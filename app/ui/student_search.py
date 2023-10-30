@@ -24,8 +24,12 @@ class Window(Toplevel):
         select_command: Callable[[backend.ole.OLE.Student], None],
         is_simplified_mode: bool = False,
         window_close_callback: callable = None,
+        start_hidden=False,
     ):
         Toplevel.__init__(self, master)
+        if start_hidden:
+            self.attributes("-alpha", 0.0)
+
         self.title(title)
 
         if is_simplified_mode:
@@ -77,14 +81,14 @@ class Window(Toplevel):
         buttons_frame = ttk.Frame(frame)
         buttons_frame.grid(row=0, column=1, sticky="NWSE", padx=(5, 0))
 
-        if is_simplified_mode:
-            show_keyboard_button = ttk.Button(
-                buttons_frame,
-                text="Show Keyboard",
-                command=self.show_keyboard_button_pressed,
-                style="SaintsPayStyle.Simplified.TButton",
-            )
-            show_keyboard_button.grid(row=0, column=0, sticky="NWSE", padx=(0, 5))
+        # if is_simplified_mode:
+        #     show_keyboard_button = ttk.Button(
+        #         buttons_frame,
+        #         text="Show Keyboard",
+        #         command=self.show_keyboard_button_pressed,
+        #         style="SaintsPayStyle.Simplified.TButton",
+        #     )
+        #     show_keyboard_button.grid(row=0, column=0, sticky="NWSE", padx=(0, 5))
 
         search_button = ttk.Button(
             buttons_frame,
@@ -93,7 +97,11 @@ class Window(Toplevel):
             style="SaintsPayStyle.Simplified.TButton" if is_simplified_mode else None,
         )
         search_button.grid(
-            row=0, column=0 if not is_simplified_mode else 1, sticky="NWSE"
+            row=0,
+            column=0
+            # if not is_simplified_mode else 1
+            ,
+            sticky="NWSE",
         )
 
         self.results_label = ttk.Label(
@@ -341,7 +349,8 @@ class Window(Toplevel):
         )
 
     def select_all_and_open_keyboard(self):
-        self.search_entry.focus()
+        if not self.on_screen_keyboard_was_showing:
+            self.search_entry.focus()
 
         self.search_entry.selection_range(0, END)
 

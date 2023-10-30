@@ -19,6 +19,9 @@ def center(win, offset_x=0, offset_y=0):
     )
     win.deiconify()
 
+    win.update_idletasks()
+    win.attributes("-alpha", 1.0)
+
 
 def center_within_rect(win, rect, resize_window_if_larger=False):
     """
@@ -46,3 +49,6 @@ def center_within_rect(win, rect, resize_window_if_larger=False):
     y = rect["y"] + rect["height"] // 2 - win_height // 2
     win.geometry("{}x{}+{}+{}".format(int(width), int(height), int(x), int(y)))
     win.deiconify()
+
+    win.update_idletasks()
+    win.attributes("-alpha", 1.0)

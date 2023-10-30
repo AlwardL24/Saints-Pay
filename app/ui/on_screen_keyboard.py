@@ -44,8 +44,12 @@ class Window(tk.Toplevel):
             "‡‡‡‡‡‡‡‡††††††††††††††‡‡◂¦▾¦▸¦"
         ),
         window_close_callback=None,
+        start_hidden=False,
+        give_back_focus_callback=None,
     ):
         tk.Toplevel.__init__(self, master)
+        if start_hidden:
+            self.attributes("-alpha", 0.0)
 
         self.title("On Screen Keyboard")
 
@@ -56,6 +60,23 @@ class Window(tk.Toplevel):
         style.configure(
             "OnScreenKeyboard.TButton", background="azure", foreground="black"
         )
+
+        # add keypress event listener to send the pressed key to the event listener, and give back focus (if possible)
+        def keypress(event):
+            if give_back_focus_callback is not None:
+                give_back_focus_callback()
+
+            char = event.char
+
+            if char == "" or (not (char.isprintable() or char.isspace())):
+                return
+
+            if char == "\n" or char == "\r":
+                event_listener({"type": "SPECIAL", "key": "ENTER"})
+
+            event_listener({"type": "KEY", "key": event.char})
+
+        self.bind("<Key>", keypress)
 
         is_shift = False
         is_caps = False
@@ -208,5 +229,3 @@ class Window(tk.Toplevel):
                 self.destroy()
 
             self.protocol("WM_DELETE_WINDOW", closed)
-
-        center(self)
