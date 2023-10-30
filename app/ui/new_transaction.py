@@ -304,6 +304,9 @@ class Window(Toplevel):
                 )
                 return
 
+            def canceled_callback():
+                 self.confirm_transaction_callback = None
+
             confirm_transaction_window = confirm_transaction.Window(
                 self,
                 student,
@@ -311,6 +314,7 @@ class Window(Toplevel):
                 lambda: window_close_callback()
                 if window_close_callback is not None
                 else self.destroy(),
+                canceled_callback=canceled_callback,
                 is_simplified_mode=is_simplified_mode,
             )
             if confirm_transaction_rect is not None:
