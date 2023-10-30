@@ -14,7 +14,7 @@ class Transaction:
         self,
         id: str,
         student_schoolbox_id: str,
-        amount: float,
+        amount: int,
         time: int,
         operator: str,
     ):
@@ -95,7 +95,7 @@ class TransactionFilter:
 
 def new_transaction(
     student_schoolbox_id: str,
-    amount: float,
+    amount: int,
     time: int = int(time.time()),
     operator: str = "Unknown",
 ):
@@ -110,7 +110,7 @@ def new_transaction(
 
     with open(transaction_file_path, "w") as transaction_file:
         transaction_file.write(
-            f"id={id}\nstudent_schoolbox_id={student_schoolbox_id}\namount={int(amount * 100)}\ntime={time}\noperator={urllib.parse.quote(operator)}"
+            f"id={id}\nstudent_schoolbox_id={student_schoolbox_id}\namount={amount}\ntime={time}\noperator={urllib.parse.quote(operator)}"
         )
 
 

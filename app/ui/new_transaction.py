@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 from utils.system_agnostic_datetime_format import sadf
 from utils.tkinter.center import center, center_within_rect
 import utils.system_sans_font
+from utils.money import parse_money
 
 
 class Window(Toplevel):
@@ -286,11 +287,15 @@ class Window(Toplevel):
                 if len(text.split(".")) == 2:
                     decimal = text.split(".")[1]
                     if len(decimal) > 2:
+                        # Hopefully this use of float doesn't go wrong?
                         decimal_to_round = float(f"{decimal[:2]}.{decimal[2:]}")
                         decimal = round(decimal_to_round)
                         text = f"{text.split('.')[0]}.{str(decimal).zfill(2)}"
 
-                cost = float(text)
+                cost = parse_money(text)
+
+                print("DEBUG TEXT", text)
+                print("DEBUG COST", cost)
 
                 if cost <= 0:
                     raise ValueError()

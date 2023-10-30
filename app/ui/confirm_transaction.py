@@ -14,7 +14,7 @@ class Window(Toplevel):
         self,
         master,
         student: backend.ole.OLE.Student,
-        amount: float,
+        amount: int,
         confirmed_callback,
         canceled_callback=None,
         is_simplified_mode=False,
@@ -87,7 +87,7 @@ class Window(Toplevel):
 
                 cost_canvas.delete("all")
 
-                amount_as_string = str(int(amount * 100))
+                amount_as_string = str(amount)
 
                 cost_canvas.create_text(
                     (width) / 2,
@@ -136,7 +136,7 @@ class Window(Toplevel):
         )
         amount_title_label.grid(row=1, column=0, sticky="NE")
 
-        amount_as_string = str(int(amount * 100))
+        amount_as_string = str(amount)
 
         amount_label = ttk.Label(
             frame,

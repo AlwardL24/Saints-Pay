@@ -7,6 +7,7 @@ from . import student_search
 from datetime import datetime
 from utils.system_agnostic_datetime_format import sadf
 import utils.system_sans_font
+from utils.money import parse_money
 
 
 class Window(Toplevel):
@@ -104,11 +105,13 @@ class Window(Toplevel):
             amount = "".join([c for c in amount_entry_var if c.isdigit() or c == "."])
 
             try:
-                amount = float(amount)
+                amount = parse_money(amount)
             except ValueError:
                 amount = transaction.amount
 
-            amount_entry_var = f"${amount:.2f}"
+            amount_as_string = str(amount)
+
+            amount_entry_var = f"${amount_as_string[:-2]}.{amount_as_string[-2:]}"
 
             amount_stringvar.set(amount_entry_var)
 
